@@ -1,0 +1,146 @@
+% Opcje klasy 'iithesis' opisane sa w komentarzach w pliku klasy. Za ich pomoca
+% ustawia sie przede wszystkim jezyk oraz rodzaj (lic/inz/mgr) pracy.
+\documentclass[english, shortabstract]{iithesis}
+
+\usepackage[utf8]{inputenc}
+
+%%%%% DANE DO STRONY TYTUŁOWEJ
+% Niezaleznie od jezyka pracy wybranego w opcjach klasy, tytul i streszczenie
+% pracy nalezy podac zarowno w jezyku polskim, jak i angielskim.
+% Pamietaj o madrym (zgodnym z logicznym rozbiorem zdania oraz estetyka) recznym
+% zlamaniu wierszy w temacie pracy, zwlaszcza tego w jezyku pracy. Uzyj do tego
+% polecenia \fmlinebreak.
+\polishtitle    {Wymagający złamania wierszy\fmlinebreak tytuł pracy w~języku polskim}
+\englishtitle   {English title}
+\polishabstract {\ldots}
+\englishabstract{\ldots}
+% w pracach wielu autorow nazwiska mozna oddzielic poleceniem \and
+\author         {Maksymilian Debeściak}
+% w przypadku kilku promotorow, lub koniecznosci podania ich afiliacji, linie
+% w ponizszym poleceniu mozna zlamac poleceniem \fmlinebreak
+\advisor        {dr Jan Kowalski}
+%\date          {}                     % Data zlozenia pracy
+% Dane do oswiadczenia o autorskim wykonaniu
+%\transcriptnum {}                     % Numer indeksu
+%\advisorgen    {dr. Jana Kowalskiego} % Nazwisko promotora w dopelniaczu
+%%%%%
+
+%%%%% WLASNE DODATKOWE PAKIETY
+%
+% \usepackage{graphicx,listings,amsmath,amssymb,amsthm,amsfonts,tikz}
+\usepackage{graphicx,listings, amsmath, amssymb, amsthm, amsfonts}
+%
+%%%%% WŁASNE DEFINICJE I POLECENIA
+%
+\theoremstyle{definition} \newtheorem{definition}{Definition}[chapter]
+\theoremstyle{remark} \newtheorem{remark}[definition]{Observation}
+\theoremstyle{plain} \newtheorem{theorem}[definition]{Theorem}
+\theoremstyle{plain} \newtheorem{lemma}[definition]{Lemma}
+% \renewcommand \qedsymbol {\ensuremath{\square}}
+% ...
+%%%%%
+
+\begin{document}
+
+%%%%% POCZĄTEK ZASADNICZEGO TEKSTU PRACY
+
+\chapter{Introduction}
+TODO: more
+
+Guarded-Fragment was introduced in \cite{?} and has been studied since. Its satisfiability problem is $2-Exp-Time$ complete \cite{Gradel1997}).
+In \cite{BBE, jelia2021} authors introduce a restriction of the Guarded-Fragment inspired by the Fluted-Fragment (\cite{Fluted}) called Forward-Guarded-Fragment ($FGF$) enjoying $Exp-Time$ complexity for the satisfiability problem and the tree-model property. 
+(opcjonalne)The following algorithm deciding satisfiability is though of little practicality, as the proof makes use of the $APSpace$ class.
+Later it was discovered (\cite{?}) that $FGF$ reduces to modal logic (\cite{modal logic}) with a non-deterministic polynomial time reduction(???). 
+\par In \cite{resolution-gf} authors show how to decide GF with resolution. Here we adapt their work for FGF.
+We rely on their proof for completeness, but derive new complexity bound. We also provide the implementation.
+
+\chapter{The Forward-Guarded-Fragment}
+
+The Forward-Guarded-Fragment is a restriction of the Guarded-Fragment to formulas where variables of atomic formulas are infixes of the series of quantified variables. 
+\begin{definition}
+Let's define the Guarded-Fragment (GF) as the smallest subset of first order logic satisfying:
+\begin{enumerate}
+    \item Atomic formulas without functional symbols are in GF
+    \item GF is closed under use of logical connectives
+    \item If $\phi(\bar{x}, \bar{y}) \in GF$ where $\bar{x}, \bar{y}$ are all the free variables of $\phi$ and formula $\alpha(\bar{x},\bar{y})$ is an atom
+then also $\exists_{\bar{x}} \alpha(\bar{x}, \bar{y}) \land \phi(\bar{x}, \bar{y}) \in GF$ and $\forall_{\bar{x}} \alpha(\bar{x}, \bar{y}) \rightarrow \phi(\bar{x}, \bar{y}) \in GF$
+\end{enumerate}
+\end{definition}
+\begin{definition}
+To define the Forward-Fragment let's first fix a sequence of variables: $x_1, x_2, \dots$. The Forward-Fragment (FF) is then the smallest subset of first order logic satisfying:
+\begin{enumerate}
+    \item Atomic formulas of form $R(x_i, x_{i+1},\dots,x_{j})$, that is atoms whose variables in order are infixes (without gaps) of the above sequence are in FF
+    \item FF is closed under use of logical connectives
+    \item If $\phi(x_1,\dots, x_{n}) \in FF$ then also $\exists_{\bar{x_{n}}} \phi(x_1,\dots, x_{n}) \in FF$ and $\forall_{x_n} \phi(x_1,\dots, x_{n}) \in FF$
+\end{enumerate}
+\end{definition}
+So we use the fixed sequence of variables as the order of quantification. The literals in a formula use infixes of the quantified sequence.
+\begin{definition}
+The Forward-Guarded-Fragment (FGF) is the intersection of the Guarded-Fragment and the Forward-Fragment.
+\end{definition}
+
+\chapter{Ordered Resolution}
+\section{Order}
+We repeat the order on literals from \cite{resolution gf}.
+\begin{definition}
+Define the following order $\sqsubset$ on literals.
+\begin{enumerate}
+    \item $A \subseteq B$ if $Vardepth(A) < Vardepth(B)$, or
+    \item $A \sqsubset B$ if $Var(A) \subseteq Var(B)$.
+\end{enumerate}
+\end{definition}
+Eventhough not an order on the set of arbitrary literals it is an order among literals from a single guarded clause as taking part in the resolution.
+For a proof see \cite{resolution gf}.
+\section{Resolution procedure}
+TODO: repeat how resolution works
+
+\chapter{Clausification}
+
+We will describe a sequence of transformations going from formulas in FGF to formulas in CNF for use in resolution. 
+The transformations are standard for first order logic and preserve satisfiability.
+\begin{itemize}
+    \item $NNF$ is the transformation to negation normal form (NNF).
+    \item $Struct_{\forall}$ is transformation applied to formulas in NNF returning a set of formulas of form $\forall_{\bar{x}}\phi(\bar{x})$ where $\phi$ is already without universal quantifiers. The conjunction of formulas from the resulting set is equisatisfiable with the initial formula.
+    \item $Skolemization$ is the satisfiability-preserving transformation removing all existential quantifiers and replacing the respective quantified variables with fresh functional terms.
+    We apply it to every formula in the set resulting from $Struct_\forall$ transformation.
+    Note that then every existential quantifier is in the scope of the same single universal quantifier.
+    We'll use specific fresh functional symbols for the skolem terms for ease of proof
+    \item $Clausification$ yields a formula in CNF. We represent it as a set of clauses and make the universal quantification implicit for all the free variables. 
+\end{itemize}
+TODO: better description, connect with the implementation
+\begin{definition}
+    Let $CNF$ be a function from the set of FGF formulas to the set of conjunctive sets of clauses obtained by sequencing above transformations.
+\end{definition}
+
+% \section{Guardness}
+
+% We rely strongly on the results from \cite{nivelle}. We need their definition of guardness:
+% \begin{definition}
+% A clause c is called guarded if it satisfies the following conditions:
+%     \begin{enumerate}
+%     \item Every non-ground, functional term in c contains all variables of c.
+%     \item If c is not ground, then there is a negative literal ¬A in c that does not contain a
+%     non-ground, functional term, and that contains all variables of c.
+%     \end{enumerate}
+% \end{definition}
+% A clause set C is called guarded if its clauses are guarded.
+
+% \begin{lemma}
+    
+% \end{lemma}
+
+\chapter{Forwardness}
+For ease of proof, we will fix a concrete procedure for naming fresh functional symbols used in skolemization. 
+Namely when variable quantified 
+
+\begin{definition} 
+\end{definition}
+
+%%%%% BIBLIOGRAFIA
+
+% \begin{thebibliography}{1}
+%     Grädel, E., Kolaitis, P., Vardi, M., 1997. On the decision problem for two-variable first-order logic.
+% Bull. Symb. Logic 3, 53–69
+% \end{thebibliography}
+
+\end{document}
