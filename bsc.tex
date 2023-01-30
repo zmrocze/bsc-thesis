@@ -79,7 +79,37 @@ So we use the fixed sequence of variables as the order of quantification. The li
 The Forward-Guarded-Fragment (FGF) is the intersection of the Guarded-Fragment and the Forward-Fragment.
 \end{definition}
 
-\chapter{Ordered Resolution}
+\section{Problem definition}
+
+The goal is to describe a resolution based procedure deciding the Forward-Guarded-Fragment.
+The algorithm should take FGF formula as an input and return true or false based on whether the formula is satisfiable.
+
+\begin{definition}
+A first order logic formula is called $satisfiable$ if there exist a model where the formula gets interpreted as true.
+\end{definition}
+
+Resolution procedure calculates a set of clauses following from the initial formula.
+An empty clause - a contradiction - gets derived for unsatisfiable formulas. 
+Then a syntactic proof of the negation of the input formula could be derived from the resolution process.
+The process for arbitrary first order formulas may not terminate.
+For the Guarded-Fragment though, it has been shown in \cite{resolution GF}, that the production of new clauses saturates
+and when it does, the model where formula holds can be derived from the saturation.
+For FGF, which is of our interest, the saturation is achieved quicker.
+We will need a flavour of resolution called ordered resolution, which enforces an order in which new clauses get derived.
+
+\chapter{Prerequisities}
+TODO: maybe avoid this chapter and inline definitions before their first use
+\begin{definition}
+    TODO: define VarDepth
+\end{definition}
+
+TODO: put normalization here
+
+\chapter{Resolution procedure}
+
+We will repeat the procedure from \cite{resolution gf}. As FGF is a subset of GF, it can be applied for FGF as well.
+The only modification is that we specifically say which most general unifier is used at the unification step.
+
 \section{Order}
 We repeat the order on literals from \cite{resolution gf}.
 \begin{definition}
@@ -91,8 +121,6 @@ Define the following order $\sqsubset$ on literals.
 \end{definition}
 Eventhough not an order on the set of arbitrary literals it is an order among literals from a single guarded clause as taking part in the resolution.
 For a proof see \cite{resolution gf}.
-\section{Resolution procedure}
-TODO: repeat how resolution works
 
 \chapter{Clausification}
 
@@ -112,6 +140,14 @@ TODO: better description, connect with the implementation
     Let $CNF$ be a function from the set of FGF formulas to the set of conjunctive sets of clauses obtained by sequencing above transformations.
 \end{definition}
 
+\section{Ordered Resolution}
+TODO: repeat how resolution works
+
+\subsection{Most general unifier}
+Any renaming substitution composed with the most general unifier is also a most general unifier.
+We want to choose which unifier gets used. TODO
+
+
 % \section{Guardness}
 
 % We rely strongly on the results from \cite{nivelle}. We need their definition of guardness:
@@ -129,12 +165,71 @@ TODO: better description, connect with the implementation
     
 % \end{lemma}
 
-\chapter{Forwardness}
-For ease of proof, we will fix a concrete procedure for naming fresh functional symbols used in skolemization. 
-Namely when variable quantified 
+\chapter{Completeness}
 
-\begin{definition} 
+follows from \cite{resolution gf}. TODO: repeat the argument
+
+\chapter{Complexity}
+
+\section{Normalization}
+We observe that in the unifications of the clauses resulting from FGF formulas it is always possible to reuse variables from just one of the unified terms.
+That way keeping the variable names close to original. The exact statement is formulated by lemma.TODO. 
+For the lemma we will use a normalization of clauses obtained by variable renamings.
+
+\begin{definition}
+We call $normalization$ of a literal, a literal obtained by the following renaming:
+\begin{enumerate}
+    \item Order variable occurences lexicographically on $(-depth, index)$ 
+    where $depth$ is the depth at which a position of the variable occurs and index is a position from left where the variable occurs when literal is written in standard notation.
+    \item Greedly assign variables $x_1, x_2, \dots$ in order
+\end{enumerate}
 \end{definition}
+
+Such a definition is convienient as normalization is now well defined on all formulas. 
+The procedure may seem convoluted, but the actual terms obtained during resolution have a simple form, which is subject of Lemma.TODO.
+
+\section{Forwardness}
+
+For ease of proof, we will fix a concrete procedure for naming fresh functional symbols used in skolemization. 
+Namely for variables quantified by $\exists_{x_n}$ we substitute skolem terms $x^\alpha_n(x_1, \dots, x_{k})$ where 
+for $\alpha$ we choose fresh symbols differentiating between variables coming from seperate quantifiers.
+
+We will write $\bar{x}_{i..j}$ for the gap-free sequence of variables $x_i, x_{i+1}, \dots, x_j$ and 
+$\bar{x}^{\bar{\alpha}}_{j..k}(\bar{x}_{1..i})$ for the gap-free sequence of skolem terms $x^{\alpha_j}_{j}(\bar{x}_{1..i}), x^{\alpha_{j+1}}_{j+1}(\bar{x}_{1..i}), \dots, x^{\alpha_k}_k(\bar{x}_{1..i})$.
+
+\begin{definition}
+We call a literal $forward$ if it is ground or it is of form
+$$(\lnot)R(\bar{x}_{i..j}, \bar{x}^{\bar{\alpha}}_{{j+1..k}}(\bar{x}_{1..j}))$$
+for some relational symbol $R$ and sequence $\bar{\alpha}$. Variable or skolem term sequences may be empty.
+\end{definition}
+
+We will call a clause $forward$ if its literals are $forward$. $Forward$ clauses are already normalized.
+
+\begin{lemma}
+If $\phi \in FGF$ then $CNF(\phi)$ contains only $forward$ clauses.
+\end{lemma}
+
+\begin{proof}
+TODO
+\end{proof}
+
+% \begin{lemma}\ \\
+\begin{lemma}
+\begin{enumerate}
+    \item If $c_1$, $c_2$ are $forward$ clauses and $c$ is ordered resolvent of $c_1$ and $c_2$, then $c$ is forward.
+    \item If $c_1$ is $forward$ clause and $c$ is a factor of $c_1$, then $c$ is $forward$.  
+\end{enumerate}
+\end{lemma}
+
+\begin{proof}
+\par We consider resolution first. Let $c_1$, $c_2$ be $forward$ clauses and $c$ be their ordered resolvent.
+Without loss of generality let $c_1$ be the positive literal. 
+Then $c_1=R(\bar{x}_{i_1..j_1}, \bar{x}^{\bar{\alpha}}_{{j+1..k}}(\bar{x}_{1..j}))$
+\end{proof}
+
+\chapter{Implementation}
+
+
 
 %%%%% BIBLIOGRAFIA
 
