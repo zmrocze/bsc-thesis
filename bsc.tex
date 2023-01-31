@@ -98,6 +98,13 @@ For FGF, which is of our interest, the saturation is achieved quicker.
 We will need a flavour of resolution called ordered resolution, which enforces an order in which new clauses get derived.
 
 \chapter{Prerequisities}
+We repeat the following lemma from \cite{resolution GF}.
+\begin{lemma}
+Every guarded clause c has a $\sqsubset$-maximal literal, and every maximal literal
+of c contains all variables of c.
+\end{lemma}
+For proof see Lemma 3.7 in \cite{resolution GF}.
+
 TODO: maybe avoid this chapter and inline definitions before their first use
 \begin{definition}
     TODO: define VarDepth
@@ -198,9 +205,9 @@ We will write $\bar{x}_{i..j}$ for the gap-free sequence of variables $x_i, x_{i
 $\bar{x}^{\bar{\alpha}}_{j..k}(\bar{x}_{1..i})$ for the gap-free sequence of skolem terms $x^{\alpha_j}_{j}(\bar{x}_{1..i}), x^{\alpha_{j+1}}_{j+1}(\bar{x}_{1..i}), \dots, x^{\alpha_k}_k(\bar{x}_{1..i})$.
 
 \begin{definition}
-We call a literal $forward$ if it is ground or it is of form
+We call a literal $forward$ if it is of form
 $$(\lnot)R(\bar{x}_{i..j}, \bar{x}^{\bar{\alpha}}_{{j+1..k}}(\bar{x}_{1..j}))$$
-for some relational symbol $R$ and sequence $\bar{\alpha}$. Variable or skolem term sequences may be empty.
+for some relational symbol $R$ and sequence $\bar{\alpha}$. This includes ground literals. Variable or skolem term sequences may be empty.
 \end{definition}
 
 We will call a clause $forward$ if its literals are $forward$. $Forward$ clauses are already normalized.
@@ -223,8 +230,8 @@ TODO
 
 \begin{proof}
 \par We consider resolution first. Let $c_1$, $c_2$ be $forward$ clauses and $c$ be their ordered resolvent.
-% Let $R$,$Q$ be the possibly negated relational symbols of $c_1$, $c_2$ respectively, that is $\{R, Q\}=\{P, \lnot P\}$ for some P.
-Without loss of generality let $c_1$ be the positive literal. \_\_\_\_\_
+Let $A\in c_1$ and $B\in c_2$ be the literals resolved upon.
+Without loss of generality let $A$ be the positive literal.
 Then $c_1=R(\bar{x}_{k..l}, \bar{x}^{\bar{\alpha}}_{{l+1..m}}(\bar{x}_{1..l}))$
 and $c_2=\lnot R(\bar{x}_{k+s..o}, \bar{x}^{\bar{\alpha'}}_{{o+1..m+s}}(\bar{x}_{1..o}))$ for some $k,l,m,o\in \mathbb{N}$ and $s\in \mathbb{Z}$.
 We denoted by $k, m$ the interval of indices appearing in $c_1$, by $s$ the shift compared to $c_2$.
@@ -232,36 +239,57 @@ Then $l, o$ mark index where the sequence of variables turns into sequence of sk
 Let's also assume that in $c_1$ the prefix of variables $\bar{x}_{i..j}$
 is no shorter than in $c_2$, that is $l-k\geq o-(k+s)$. Two assumptions can be both made without loss of generality as
 the sign of literals doesn't impact the unifier.
-To calculate the most general unifier let's rename variables of $c_1$: $x_i \rightarrow y_i $.
-% $$R(y_i, y_{i+1}, \dots, y_{i+j'-i'}, y_{i+j'-i'+1},\dots, y_j, x_{j+1}(\bar{x}_{1..j}), \dots, x_{k}(\bar{x}_{1..j}))\newline
-% \doteq
-% \newline\lnot R(x_i', x_{i'+1}, \dots, x_{j'}, x_{j'+1}(\bar{x}_{1..j'}), \dots, x_{i'+j-i}(\bar{x}_{1..j'}), x_{i'+j-i+1}(\bar{x}_{1..j'}), \dots, x_{k'}(\bar{x}_{1..j'}))$$
-% \begin{equation*}
-% \begin{split}
-% \begin{align*}
-% &R(&y_i&, &y_{i+1}&, \dots, &y_{i+j'-i'}&, &y_{i+j'-i'+1}&,\dots, &y_j&, &x_{j+1}(\bar{x}_{1..j})&, \dots, &x_{k}(\bar{x}_{1..j})&) \\
-% \doteq
-% \lnot &R(&x_i'&, &x_{i'+1}&, \dots, &x_{j'}&, &x_{j'+1}(\bar{x}_{1..j'})&, \dots, &x_{i'+j-i}(\bar{x}_{1..j'})&, &x_{i'+j-i+1}(\bar{x}_{1..j'})&, \dots, &x_{k'}(\bar{x}_{1..j'})&)
-% \end{align*}
-
-% $i'-i=m$
+To calculate the most general unifier let's first rename variables of $c_1$: $x_i \rightarrow y_i$.
+The unification problem is:
 \begin{align*}
-      &R(&y_i&,     &y_{i+1}&,   \dots, &y_{j'-m}&,    &y_{j'-m+1}&,\dots,                 &y_j&,                      &x_{j+1}(\bar{x}_{1..j})&, \dots,    &x_{k}(\bar{x}_{1..j})&) \\
+      &R(&y_k&,     &y_{k+1}&,   \dots, &y_{o-s}&,    &y_{o-s+1}&,\dots,                 &y_l&,                      &x_{l+1}(\bar{x}_{1..l})&, \dots, &x_{m}(\bar{x}_{1..l})&) \\
     \doteq
-\lnot &R(&x_{i+m}&, &x_{i+m+1}&, \dots, &x_{j'}&,      &x_{j'+1}(\bar{x}_{1..j'})&, \dots, &x_{j+m}(\bar{x}_{1..j'})&, &x_{j+m+1}(\bar{x}_{1..j'})&, \dots, &x_{k+m}(\bar{x}_{1..j'})&)
+\lnot &R(&x_{k+s}&, &x_{k+s+1}&, \dots, &x_{o}&,      &x_{o+1}(\bar{x}_{1..o})&, \dots, &x_{l+o}(\bar{x}_{1..o})&, &x_{l+o+1}(\bar{x}_{1..o})&, \dots, &x_{m+s}(\bar{x}_{1..o})&)
 \end{align*}
-% \end{split}
-% \end{equation*}
 Comparing the terms we get 3 types of equations:
 \begin{enumerate}
-    \item $y_s\doteq x_{s+m}$ for $s=i,\dots, j'-m$
-    \item $y_s\doteq x_{s+m}(\bar{x}_{1..j'})$ for $s=j'-m+1,\dots, j$
-    \item $x_{s}(\bar{x}_{1..j})\doteq x_{s+m}(\bar{x}_{1..j'})$ for $s=j+1,\dots, k$
+    \item $y_i\doteq x_{i+s}$ for $i=k,\dots, o-s$
+    \item $y_i\doteq x_{i+s}(\bar{x}_{1..o})$ for $i=o-s+1,\dots, l$
+    \item $x_i(\bar{x}_{1..l})\doteq x_{i+s}(\bar{x}_{1..o})$ for $s=l+1,\dots, m$
 \end{enumerate}
 \end{proof}
-Every mgu of $c_1$, $c_2$ satisfies the equations, as renamings TODO .
-When there are any equations of type 3 and there is mgu, then
-necessarily TODO. 
+Every mgu of $A$ after our renaming and $B$ satisfies the equations.
+
+If there are any equations of type 3 and there exists a solution, then
+necessarily $x_m$ and $x_{m+s}$ are the same functional symbols, so $s=0$. Also $o=l$ as $o$ and $l$ are respective arities of $x_{m}$, $x_{m+s}$.
+It follows that the clauses $c_1$, $c_2$ are already unified with identity unification. Every literal in the clause $c$ comes directly from one of $c_1$, $c_2$ so $c$ is $forward$.
+
+Let's consider the other case, when $A$ doesn't contain any functional terms and therefore there are no equations of type 3.
+The unification has an easy solution then.% We can then solve the unification problem using variables from $c_2$ in the result.
+We will define unifying substitution $\sigma : \{y_k,\dots,y_l, x_1, \dots, x_o\} \rightarrow \{x_1, \dots, x_o\}$.
+Let $\sigma$ be the identity substitution on variables $x_1$ to $x_o$.
+Equations of type 1 and 2 define the substitution on variables $y_k$ to $y_l$:
+\begin{itemize}
+    \item $y_i \leftarrow x_{i+s}$ for $i=k,\dots, o-s$
+    \item $y_i \leftarrow x_{i+s}(\bar{x}_{1..o})$ for $i=o-s+1,\dots, l$
+\end{itemize}
+$\sigma$ is trivially a unifier of $A$ after the renaming and $B$, as
+$\sigma$ unifies all pairs of relational symbol arguments at matching indices.
+Substitution $\sigma$ is the most general unifier, because every unifier more general
+has to assign a variable instead of a functional term to one of the variables $y_{o-s+1}$ to $y_l$, 
+thus invalidating the corresponding equation. 
+
+$\sigma$ is the substitution used in the resolution procedure, because $A$ is $normalized$ after applying $\sigma$.
+Therefore every literal in $c$ is either a literal of $c_2$ and therefore $forward$, or it is 
+literal of $c_1$ after applying substitution $\sigma$.
+$A$ is a maximal literal in $c_1$, so every other literal in $c_1$ 
+\begin{itemize}
+    \item doesn't contain functional terms
+    \item contains only variables from $A$ by lemma (TODO:lemma number)
+\end{itemize}
+Therefore every literal in $c_1$ is of form $(\lnot)R(\bar{y}_{i..j})$ for some infix $\bar{y}_{i..j}$ of $\bar{y}_{k..l}$.
+After substitution every literal is of form $(\lnot)R(\bar{t})$ for some infix $\bar{t}$ of $\bar{x}_{k+s..o}, \bar{x}_{{o+1..m+s}}(\bar{x}_{1..o})$, therefore is $forward$.
+
+\par Let's consider factoring. Let $c_1$ be a $forward$ clause and $c$ be its factor.
+Let $A_1$, $A_2$ be the literals participating in factoring and $A_1$ be the maximal one.
+Literal $A_1$ contains all variables of $A_2$ by lemma (TODO:lemma number) and both literals are $forward$. 
+It follows that the literals are indentical. $A_1$ is already $normalized$, because it is $forward$.
+The factoring substitution is then identity substitution and $c\subset c_1$. So $c$ is forward.
 
 \chapter{Implementation}
 
