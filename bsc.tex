@@ -223,9 +223,45 @@ TODO
 
 \begin{proof}
 \par We consider resolution first. Let $c_1$, $c_2$ be $forward$ clauses and $c$ be their ordered resolvent.
-Without loss of generality let $c_1$ be the positive literal. 
-Then $c_1=R(\bar{x}_{i_1..j_1}, \bar{x}^{\bar{\alpha}}_{{j+1..k}}(\bar{x}_{1..j}))$
+% Let $R$,$Q$ be the possibly negated relational symbols of $c_1$, $c_2$ respectively, that is $\{R, Q\}=\{P, \lnot P\}$ for some P.
+Without loss of generality let $c_1$ be the positive literal. \_\_\_\_\_
+Then $c_1=R(\bar{x}_{k..l}, \bar{x}^{\bar{\alpha}}_{{l+1..m}}(\bar{x}_{1..l}))$
+and $c_2=\lnot R(\bar{x}_{k+s..o}, \bar{x}^{\bar{\alpha'}}_{{o+1..m+s}}(\bar{x}_{1..o}))$ for some $k,l,m,o\in \mathbb{N}$ and $s\in \mathbb{Z}$.
+We denoted by $k, m$ the interval of indices appearing in $c_1$, by $s$ the shift compared to $c_2$.
+Then $l, o$ mark index where the sequence of variables turns into sequence of skolem terms, in $c_1$ and $c_2$ respectively.
+Let's also assume that in $c_1$ the prefix of variables $\bar{x}_{i..j}$
+is no shorter than in $c_2$, that is $l-k\geq o-(k+s)$. Two assumptions can be both made without loss of generality as
+the sign of literals doesn't impact the unifier.
+To calculate the most general unifier let's rename variables of $c_1$: $x_i \rightarrow y_i $.
+% $$R(y_i, y_{i+1}, \dots, y_{i+j'-i'}, y_{i+j'-i'+1},\dots, y_j, x_{j+1}(\bar{x}_{1..j}), \dots, x_{k}(\bar{x}_{1..j}))\newline
+% \doteq
+% \newline\lnot R(x_i', x_{i'+1}, \dots, x_{j'}, x_{j'+1}(\bar{x}_{1..j'}), \dots, x_{i'+j-i}(\bar{x}_{1..j'}), x_{i'+j-i+1}(\bar{x}_{1..j'}), \dots, x_{k'}(\bar{x}_{1..j'}))$$
+% \begin{equation*}
+% \begin{split}
+% \begin{align*}
+% &R(&y_i&, &y_{i+1}&, \dots, &y_{i+j'-i'}&, &y_{i+j'-i'+1}&,\dots, &y_j&, &x_{j+1}(\bar{x}_{1..j})&, \dots, &x_{k}(\bar{x}_{1..j})&) \\
+% \doteq
+% \lnot &R(&x_i'&, &x_{i'+1}&, \dots, &x_{j'}&, &x_{j'+1}(\bar{x}_{1..j'})&, \dots, &x_{i'+j-i}(\bar{x}_{1..j'})&, &x_{i'+j-i+1}(\bar{x}_{1..j'})&, \dots, &x_{k'}(\bar{x}_{1..j'})&)
+% \end{align*}
+
+% $i'-i=m$
+\begin{align*}
+      &R(&y_i&,     &y_{i+1}&,   \dots, &y_{j'-m}&,    &y_{j'-m+1}&,\dots,                 &y_j&,                      &x_{j+1}(\bar{x}_{1..j})&, \dots,    &x_{k}(\bar{x}_{1..j})&) \\
+    \doteq
+\lnot &R(&x_{i+m}&, &x_{i+m+1}&, \dots, &x_{j'}&,      &x_{j'+1}(\bar{x}_{1..j'})&, \dots, &x_{j+m}(\bar{x}_{1..j'})&, &x_{j+m+1}(\bar{x}_{1..j'})&, \dots, &x_{k+m}(\bar{x}_{1..j'})&)
+\end{align*}
+% \end{split}
+% \end{equation*}
+Comparing the terms we get 3 types of equations:
+\begin{enumerate}
+    \item $y_s\doteq x_{s+m}$ for $s=i,\dots, j'-m$
+    \item $y_s\doteq x_{s+m}(\bar{x}_{1..j'})$ for $s=j'-m+1,\dots, j$
+    \item $x_{s}(\bar{x}_{1..j})\doteq x_{s+m}(\bar{x}_{1..j'})$ for $s=j+1,\dots, k$
+\end{enumerate}
 \end{proof}
+Every mgu of $c_1$, $c_2$ satisfies the equations, as renamings TODO .
+When there are any equations of type 3 and there is mgu, then
+necessarily TODO. 
 
 \chapter{Implementation}
 
