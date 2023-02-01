@@ -29,6 +29,8 @@
 %
 % \usepackage{graphicx,listings,amsmath,amssymb,amsthm,amsfonts,tikz}
 \usepackage{graphicx,listings, amsmath, amssymb, amsthm, amsfonts}
+\usepackage{algorithm}
+\usepackage[noend]{algpseudocode}
 %
 %%%%% WŁASNE DEFINICJE I POLECENIA
 %
@@ -82,7 +84,7 @@ The Forward-Guarded-Fragment (FGF) is the intersection of the Guarded-Fragment a
 \section{Problem definition}
 
 The goal is to describe a resolution based procedure deciding the Forward-Guarded-Fragment.
-The algorithm should take FGF formula as an input and return true or false based on whether the formula is satisfiable.
+The algorithm should take FGF sentence as an input and return true or false based on whether the sentence is satisfiable.
 
 \begin{definition}
 A first order logic formula is called $satisfiable$ if there exist a model where the formula gets interpreted as true.
@@ -95,7 +97,7 @@ The process for arbitrary first order formulas may not terminate.
 For the Guarded-Fragment though, it has been shown in \cite{resolution GF}, that the production of new clauses saturates
 and when it does, the model where formula holds can be derived from the saturation.
 For FGF, which is of our interest, the saturation is achieved quicker.
-We will need a flavour of resolution called ordered resolution, which enforces an order in which new clauses get derived.
+We will need a flavour of resolution called ordered resolution, which restricts which inferences are allowed.
 
 \chapter{Prerequisities}
 We repeat the following lemma from \cite{resolution GF}.
@@ -117,7 +119,46 @@ TODO: put normalization here
 We will repeat the procedure from \cite{resolution gf}. As FGF is a subset of GF, it can be applied for FGF as well.
 The only modification is that we specifically say which most general unifier is used at the unification step.
 
-\section{Order}
+\section{Procedure overview}
+
+First a formula needs to be translated to CNF form, that is conjunction of clauses of literals. 
+We represent a CNF formula as a set of clauses. The transformed formula is a starting point to the resolution procedure.
+Resolution iterates on the set of clauses, inspecting pairs of clauses for possible inferences.
+There is two ways to make an inference: resolution and factoring, described in section \textit{Inference}.
+When an inference is made a new clause gets added to the set.
+Thus in the process the set grows containing increasingly more clauses following from the initial formula.
+When an empty clause gets derived, it proves unsatisfiability of the initial sentence.
+Otherwise the process stops after no new clauses can be derived. If the resulting 
+clause set contains no empty clauses, the initial formula is satisfiable.
+
+\section{Clausification}
+
+We will describe a sequence of transformations going from formulas in FGF to formulas in CNF.
+The transformations are standard for first order logic and preserve satisfiability.
+\begin{enumerate}
+    \item First $NNF$ is the transformation to negation normal form (NNF). See \cite{resolution book} Section 2.2 for description.
+    \item $Struct_{\forall}$ is the transformation applied to formulas in NNF returning a set of formulas of form $\forall_{\bar{x}}\phi(\bar{x})$ where $\phi$ is already without universal quantifiers. The conjunction of formulas from the resulting set is equisatisfiable with the initial formula.
+    It works, by repeatedly replacing sub-formulas of form $\forall_{\bar{y}} \psi(\bar{x},\bar{y})$ 
+    by fresh atoms $\alpha(\bar{x})$ and adding a defining formula $\forall_{\bar{x}} \alpha \rightarrow \forall_{\bar{y}} \psi(\bar{x},\bar{y})$.
+    The transformation preserves satisfiability only, due to the one way implication in the defining formula.
+    \item $Skolemization$ is the satisfiability-preserving transformation removing all existential quantifiers and replacing the respective quantified variables with fresh functional terms.
+    We apply it to every formula in the set resulting from $Struct_\forall$ transformation.
+    Note that then every existential quantifier is in the scope of the same universal quantifiers.
+    \item Finally $clausification$ yields a formula in CNF by treating th formulas under universal quantifiers as propositional logic sentences. We represent it as a set of clauses and make the universal quantification implicit for all the free variables. 
+\end{enumerate}
+
+For definitions of the transformations 2,3,4 check definitions 2.6, 2.7, 2.8 respectively in \cite{resolution GF}
+
+For ease of proof we will use concrete procedure for naming fresh functional symbols for the skolem terms.
+Namely when quantifier $\exists_{x_i}$ gets removed, we substitute term $x_i^{\alpha}(\bar{x_{1..j}})$ for the variable it bound, 
+where $\alpha$ is a fresh symbol differentiating between variables bounded by other quantifiers $\exists_{x_i}$ and $\bar{x_{1..j}}$ is the sequence of universally quantified variables in scope.
+
+\begin{definition}
+    Let $CNF$ be a function from the set of FGF formulas to the set of conjunctive sets of clauses obtained by sequencing above transformations.
+\end{definition}
+
+\subsection{Order}
+
 We repeat the order on literals from \cite{resolution gf}.
 \begin{definition}
 Define the following order $\sqsubset$ on literals.
@@ -129,23 +170,6 @@ Define the following order $\sqsubset$ on literals.
 Eventhough not an order on the set of arbitrary literals it is an order among literals from a single guarded clause as taking part in the resolution.
 For a proof see \cite{resolution gf}.
 
-\chapter{Clausification}
-
-We will describe a sequence of transformations going from formulas in FGF to formulas in CNF for use in resolution. 
-The transformations are standard for first order logic and preserve satisfiability.
-\begin{itemize}
-    \item $NNF$ is the transformation to negation normal form (NNF).
-    \item $Struct_{\forall}$ is transformation applied to formulas in NNF returning a set of formulas of form $\forall_{\bar{x}}\phi(\bar{x})$ where $\phi$ is already without universal quantifiers. The conjunction of formulas from the resulting set is equisatisfiable with the initial formula.
-    \item $Skolemization$ is the satisfiability-preserving transformation removing all existential quantifiers and replacing the respective quantified variables with fresh functional terms.
-    We apply it to every formula in the set resulting from $Struct_\forall$ transformation.
-    Note that then every existential quantifier is in the scope of the same single universal quantifier.
-    We'll use specific fresh functional symbols for the skolem terms for ease of proof
-    \item $Clausification$ yields a formula in CNF. We represent it as a set of clauses and make the universal quantification implicit for all the free variables. 
-\end{itemize}
-TODO: better description, connect with the implementation
-\begin{definition}
-    Let $CNF$ be a function from the set of FGF formulas to the set of conjunctive sets of clauses obtained by sequencing above transformations.
-\end{definition}
 
 \section{Ordered Resolution}
 TODO: repeat how resolution works
@@ -154,6 +178,34 @@ TODO: repeat how resolution works
 Any renaming substitution composed with the most general unifier is also a most general unifier.
 We want to choose which unifier gets used. TODO
 
+\section{Full algorithm}
+
+\begin{algorithm}
+\begin{algorithmic}
+\Procedure{SAT}{$\phi$}
+\State $C \gets CNF(\phi)$
+\State $continue \gets True$
+\While{continue}
+\State $continue \gets False$
+\For{$c_1, c_2 \in C \times C$}
+\If{$c_1, c_2$ resolve into $c$}
+    \State $C \gets C \cup \{c\}$
+    \State $continue \gets True$
+\EndIf
+\If{$c_1$ factors into $c$}
+    \State $C \gets C \cup \{c\}$
+    \State $continue \gets True$
+\EndIf
+\EndFor
+\EndWhile
+\State
+\Return $\{\} \stackrel{?}{\in} C$
+\EndProcedure
+\end{algorithmic}
+\end{algorithm}
+
+This is the algorithm from \cite{resolution GF} and its termination and correctness is proved by Theorem 3.20.
+Termination also follows from our argument in section on complexity.
 
 % \section{Guardness}
 
