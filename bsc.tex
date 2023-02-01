@@ -47,7 +47,7 @@
 %%%%% POCZĄTEK ZASADNICZEGO TEKSTU PRACY
 
 \chapter{Introduction}
-TODO: more
+TODO: improve
 
 Guarded-Fragment was introduced in \cite{?} and has been studied since. Its satisfiability problem is $2-Exp-Time$ complete \cite{Gradel1997}).
 In \cite{BBE, jelia2021} authors introduce a restriction of the Guarded-Fragment inspired by the Fluted-Fragment (\cite{Fluted}) called Forward-Guarded-Fragment ($FGF$) enjoying $Exp-Time$ complexity for the satisfiability problem and the tree-model property. 
@@ -107,17 +107,28 @@ of c contains all variables of c.
 \end{lemma}
 For proof see Lemma 3.7 in \cite{resolution GF}.
 
-TODO: maybe avoid this chapter and inline definitions before their first use
+\section{Normalization}
+We don't want to leave choice for most general unifier at the unification step of resolution.
+For that we will need normalizing renaming.
+
 \begin{definition}
-    TODO: define VarDepth
+We call $normalization$ of a literal, a literal obtained by the following renaming:
+\begin{enumerate}
+    \item Order variable occurences lexicographically on $(-depth, index)$ 
+    where $depth$ is the depth at which a position of the variable occurs and index is a position from left where the variable occurs when literal is written in standard notation.
+    \item Greedly assign variables $x_1, x_2, \dots$ in order
+\end{enumerate}
 \end{definition}
 
-TODO: put normalization here
+It is convenient to define normalization in this way as it is well-defined on all first order logic formulas.
+In practice the terms produced in resolution are variables or skolem terms and the skolem terms contain every variable of the literal.
+For example these two literals are normalized: $$R(x_1,x_2), Q(x_2, x_3, f(x_1,x_2, x_3))$$
 
 \chapter{Resolution procedure}
 
 We will repeat the procedure from \cite{resolution gf}. As FGF is a subset of GF, it can be applied for FGF as well.
 The only modification is that we specifically say which most general unifier is used at the unification step.
+Stronger restriction on the input formula guarantees faster termination. 
 
 \section{Procedure overview}
 
@@ -151,17 +162,26 @@ For definitions of the transformations 2,3,4 check definitions 2.6, 2.7, 2.8 res
 
 For ease of proof we will use concrete procedure for naming fresh functional symbols for the skolem terms.
 Namely when quantifier $\exists_{x_i}$ gets removed, we substitute term $x_i^{\alpha}(\bar{x_{1..j}})$ for the variable it bound, 
-where $\alpha$ is a fresh symbol differentiating between variables bounded by other quantifiers $\exists_{x_i}$ and $\bar{x_{1..j}}$ is the sequence of universally quantified variables in scope.
+where $\alpha$ is a fresh symbol differentiating between variables bounded by other quantifiers $\exists_{x_i}$ and $\bar{x_{1..j}}$ is the sequence of universally quantified variables in the scope.
 
 \begin{definition}
-    Let $CNF$ be a function from the set of FGF formulas to the set of conjunctive sets of clauses obtained by sequencing above transformations.
+Let $CNF$ be a function from the set of FGF formulas to the set of conjunctive sets of clauses obtained by sequencing above transformations.
 \end{definition}
+
+\section{Inference rules}
 
 \subsection{Order}
 
-We repeat the order on literals from \cite{resolution gf}.
+First we need to repeat the order on literals from \cite{resolution gf}.
+By $Vardepth$ of a term/literal we denote the maximal depth at which variable occurs in the term, that is:
+\begin{enumerate}
+    \item $Vardepth(A)=-1$ if $A$ is ground
+    \item $Vardepth(A)=0$ if $A$ is a variable
+    \item $Vardepth(f(t_1,\dots, t_i))=1+\max\{Vardepth(t_1), \dots, Vardepth(t_i)\}$ if $A$ is a term/literal
+\end{enumerate}
+By $Var$ we denote the set of variables appearing in a literal or a term.
 \begin{definition}
-Define the following order $\sqsubset$ on literals.
+Let's define the following order $\sqsubset$ on literals.
 \begin{enumerate}
     \item $A \subseteq B$ if $Vardepth(A) < Vardepth(B)$, or
     \item $A \sqsubset B$ if $Var(A) \subseteq Var(B)$.
@@ -170,13 +190,47 @@ Define the following order $\sqsubset$ on literals.
 Eventhough not an order on the set of arbitrary literals it is an order among literals from a single guarded clause as taking part in the resolution.
 For a proof see \cite{resolution gf}.
 
-
-\section{Ordered Resolution}
-TODO: repeat how resolution works
-
 \subsection{Most general unifier}
-Any renaming substitution composed with the most general unifier is also a most general unifier.
-We want to choose which unifier gets used. TODO
+
+\begin{definition}
+Most general unifier (mgu) of literals/terms is a substitution which applied to the two literals/terms makes them syntactically equal. 
+\end{definition}
+Any most general unifier composed with a renaming substitution is also a most general unifier.
+We will write $A\theta$ to signify the result of applying subsitution $\theta$ to literal $A$.
+
+We make one difference to the resolution algorithm in \cite{Resolution gf}.
+Out of all valid mgu's in inference, we pick a specific one, whereas the initial authors didn't specify the mgu that should be used.
+We are allowed to make this change as mgu's for a fixed unification problem differ by renamings only,
+but renamings influence neither the $\sqsubset$-order nor the remaining valid inferences.
+Lemma below specifies the mgu.
+\begin{lemma}
+Let $A_1$, $A_2$ be two literals with an mgu $\theta$.
+Then there exist an mgu $\theta'$ such that $A_1\theta'=A_2\theta'$ is $normalized$.
+\end{lemma}
+\begin{proof}
+Let $\theta'$ be the substitution obtained by applying $\theta$ first and then the normalizing renaming of the literal $A_1\theta$.
+Substitution $\theta'$ is an mgu as it is an mgu composed with a (1-1) renaming.
+\end{proof}
+
+We can now describe the rules for infering new clauses.
+
+\subsection{Factoring}
+
+\begin{definition}
+Let $c_1=\{A_1, A_2\} \cup R$ be a clause,
+such that $A_1$ is maximal in $c_1$ with respect to $\sqsubset$-order from definition TODO
+and $A_1, A_2$ have a most general unifier $\theta$ such that $A_1\theta=A_2\theta$ is $normalized$.
+Then the clause $\{A_1\theta\}\cup \{r\theta : r \in R\}$ is called $\sqsubset$-ordered factor of $c_1$.
+\end{definition}
+
+\subsection{Resolution}
+
+\begin{definition}
+Let $c_1=\{A_1\} \cup R_1$ and $c_2=\{\lnot A_2\} \cup R_1$ be two clauses,
+such that both $A_1$ and $\lnot A_2$ are maximal in their respective clauses with respect to $\sqsubset$-order
+and $A_1, A_2$ have a most general unifier $\theta$ such that $A_1\theta=A_2\theta$ is $normalized$.
+Then the clause $\{A_1\theta\}\cup \{\lnot A_2\theta\} \cup \{r\theta : r \in R_1\} \cup \{r\theta : r \in R_2\}$ is called $\sqsubset$-ordered resolvent of $c_1$ and $c_2$.
+\end{definition}
 
 \section{Full algorithm}
 
@@ -204,54 +258,29 @@ We want to choose which unifier gets used. TODO
 \end{algorithmic}
 \end{algorithm}
 
-This is the algorithm from \cite{resolution GF} and its termination and correctness is proved by Theorem 3.20.
-Termination also follows from our argument in section on complexity.
-
-% \section{Guardness}
-
-% We rely strongly on the results from \cite{nivelle}. We need their definition of guardness:
-% \begin{definition}
-% A clause c is called guarded if it satisfies the following conditions:
-%     \begin{enumerate}
-%     \item Every non-ground, functional term in c contains all variables of c.
-%     \item If c is not ground, then there is a negative literal ¬A in c that does not contain a
-%     non-ground, functional term, and that contains all variables of c.
-%     \end{enumerate}
-% \end{definition}
-% A clause set C is called guarded if its clauses are guarded.
-
-% \begin{lemma}
-    
-% \end{lemma}
+The algorithm as stated differs from \cite{resolution GF} only in the aspect described in section $\mathit{Most general unifier}$.
 
 \chapter{Completeness}
 
-follows from \cite{resolution gf}. TODO: repeat the argument
+The resolution algorithm derives a set of clauses and answers the satisfiability question 
+based on whether the set contains the empty clause. The algorithm is correct, because 
+the empty clause is guaranteed to be derived for unsatisfiable sentences.
+This is true about unrestricted resolution and arbitrary first order logic sentence, 
+but also about the Guarded-Fragment and ordered-resolution described above.
+
+\begin{theorem}
+Algorithm $SAT$ decides satisfiability of FGF sentences.
+\end{theorem}
+
+\begin{proof}
+From \cite{resolution gf} we know that $SAT$ decides GF sentences and FGF is a subset of GF.
+\end{proof}
 
 \chapter{Complexity}
 
-\section{Normalization}
-We observe that in the unifications of the clauses resulting from FGF formulas it is always possible to reuse variables from just one of the unified terms.
-That way keeping the variable names close to original. The exact statement is formulated by lemma.TODO. 
-For the lemma we will use a normalization of clauses obtained by variable renamings.
-
-\begin{definition}
-We call $normalization$ of a literal, a literal obtained by the following renaming:
-\begin{enumerate}
-    \item Order variable occurences lexicographically on $(-depth, index)$ 
-    where $depth$ is the depth at which a position of the variable occurs and index is a position from left where the variable occurs when literal is written in standard notation.
-    \item Greedly assign variables $x_1, x_2, \dots$ in order
-\end{enumerate}
-\end{definition}
-
-Such a definition is convienient as normalization is now well defined on all formulas. 
-The procedure may seem convoluted, but the actual terms obtained during resolution have a simple form, which is subject of Lemma.TODO.
+The stronger restriction on FGF formulas compared to GF formulas gives a restriction on produced clauses which we call $forwardness$.
 
 \section{Forwardness}
-
-For ease of proof, we will fix a concrete procedure for naming fresh functional symbols used in skolemization. 
-Namely for variables quantified by $\exists_{x_n}$ we substitute skolem terms $x^\alpha_n(x_1, \dots, x_{k})$ where 
-for $\alpha$ we choose fresh symbols differentiating between variables coming from seperate quantifiers.
 
 We will write $\bar{x}_{i..j}$ for the gap-free sequence of variables $x_i, x_{i+1}, \dots, x_j$ and 
 $\bar{x}^{\bar{\alpha}}_{j..k}(\bar{x}_{1..i})$ for the gap-free sequence of skolem terms $x^{\alpha_j}_{j}(\bar{x}_{1..i}), x^{\alpha_{j+1}}_{j+1}(\bar{x}_{1..i}), \dots, x^{\alpha_k}_k(\bar{x}_{1..i})$.
@@ -342,10 +371,41 @@ Let $A_1$, $A_2$ be the literals participating in factoring and $A_1$ be the max
 Literal $A_1$ contains all variables of $A_2$ by lemma (TODO:lemma number) and both literals are $forward$. 
 It follows that the literals are indentical. $A_1$ is already $normalized$, because it is $forward$.
 The factoring substitution is then identity substitution and $c\subset c_1$. So $c$ is forward.
+\qed
+
+\begin{lemma}
+Let $n$ be the number of relational symbols, $k$ and $a$ be their maximal arity
+\end{lemma}
+
+\section{Procedure complexity}
+
+\begin{theorem}
+Procedure $SAT$ works in exponential time with respect to the length of the input formula. 
+\end{theorem}
+
+\begin{proof}
+The complexity is made up by the complexity of the $CNF$ transformation plus the complexity of following resolution process.
+Let's consider clausification first:
+\begin{enumerate}
+    \item $NNF$ works in linear time with respect to the length of the formula and increases the size of the formula by a constant factor.
+    \item The output of $Struct_{\forall}$ transformation is a set of formulas. There is at most as many formulas as there is 
+    subformulas of the input and they are no bigger than the input, so the output is at most of quadratic size compared to the input.
+    Therefore $Struct_\forall$ also works in quadratic time or less.
+    \item The $skolemization$ works in linear time and increases the formula by a constant factor.
+    \item Finally clausification may produce exponentialy many polynomially sized clauses.
+\end{enumerate}
+\end{proof}
+Clearly the complexity of $CNF$ translation is no bigger than exponential.
+The $clausification$ step could be improved to a linear equisatisfiable transformation,
+but this wouldn't impact the resulting complexity of the whole $SAT$ procedure.
+
+Then the resolution process produces at most 
 
 \chapter{Implementation}
 
+\section{User guide}
 
+TODO
 
 %%%%% BIBLIOGRAFIA
 
