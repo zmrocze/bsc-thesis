@@ -99,28 +99,6 @@ and when it does, the model where formula holds can be derived from the saturati
 For FGF, which is of our interest, the saturation is achieved quicker.
 We will need a flavour of resolution called ordered resolution, which restricts which inferences are allowed.
 
-\chapter{Preliminaries}
-
-\section{Normalization}
-We do not want to leave choice for most general unifier at the unification step of resolution.
-For that we will need normalizing renaming.
-
-\begin{definition}
-We call the following renaming a \emph{normalization} of a literal:
-\begin{enumerate}
-    \item Order variable occurences lexicographically on $(-\mathit{depth}, \mathit{index})$ 
-    where $\mathit{depth}$ is the depth at which a position of the variable occurs and $\mathit{index}$ is a position from left where the variable occurs when literal is written in standard notation.
-    \item Greedly assign variables $x_1, x_2, \dots$ in order
-\end{enumerate}
-\end{definition}
-
-It is convenient to define normalization in this way as it is well-defined on all first order logic formulas.
-In practice the terms produced in resolution are variables or Skolem terms and the Skolem terms contain every variable of the literal.
-Therefore, if Skolem terms are present, then normalization assigns names in order 
-starting from $x_1$ to the variables of the Skolem terms which names all variables already.
-When literal has no Skolem terms, then normalization simply assigns variables in the order of appearence when written.
-For example these two literals are normalized: $$R(x_1,x_2), Q(x_3, x_2, f(x_1,x_2, x_3))$$
-
 \chapter{Resolution procedure}
 
 We will use an instance of the procedure from \cite{resolution gf}. 
@@ -146,7 +124,7 @@ The transformations are standard for first order logic and preserve satisfiabili
 \begin{enumerate}
     \item First NNF is the transformation to negation normal form (NNF). 
     It works by recursively pushing negation signs towards the atoms.
-    It does that by repeatedly applying rewrites following from De Morgans' laws. 
+    It does that by repeatedly applying rewrites following from the De Morgans' laws. 
     See \cite{resolution book} Section 2.2 for description.
     \item \emph{Struct\textsubscript{{$\forall$}}} is the transformation applied to formulas in NNF returning a set of formulas of form $\forall_{\bar{x}}\phi(\bar{x})$ where $\phi$ is already without universal quantifiers.
     The conjunction of formulas from the resulting set is equisatisfiable with the initial formula.
@@ -172,14 +150,14 @@ Let CNF be a function from the set of FGF formulas to the set of conjunctive set
 \subsection{Order}
 
 First we recall the order on literals from \cite{resolution gf}.
-By $Vardepth$ of a term we denote the maximal depth at which variable occurs in the term, that is:
+By $\mathit{Vardepth}$ of a term we denote the maximal depth at which variable occurs in the term, that is:
 \begin{enumerate}
-    \item $Vardepth(A)=-1$ if $A$ is ground
-    \item $Vardepth(A)=0$ if $A$ is a variable
-    \item $Vardepth(f(t_1,\dots, t_i))=1+\max\{Vardepth(t_1), \dots, Vardepth(t_i)\}$ if $A$ is a term/literal
+    \item $\mathit{Vardepth}(A)=-1$ if $A$ is ground
+    \item $\mathit{Vardepth}(A)=0$ if $A$ is a variable
+    \item $\mathit{Vardepth}(f(t_1,\dots, t_i))=1+\max\{\mathit{Vardepth}(t_1), \dots, \mathit{Vardepth}(t_i)\}$ if $A$ is a term
 \end{enumerate}
-TODO: seperate definition on literals
-By $Var$ we denote the set of variables appearing in a literal or a term.
+By $\mathit{Vardepth}$ of a literal $R(t_1, \dots, t_i)$ we denote $1+\max\{\mathit{Vardepth}(t_1), \dots, \mathit{Vardepth}(t_i)\}$.
+By $\mathit{Var}$ we denote the set of variables appearing in a literal or a term.
 \begin{definition}\label{def:order}
 Let us define the following order $\sqsubset$ on literals.
 \begin{enumerate}
@@ -197,19 +175,40 @@ of c contains all variables of c.
 \end{lemma}
 For proof see Lemma 3.7 in \cite{resolution GF}.
 
+\subsection{Normalization}
+We do not want to leave choice for most general unifier at the unification step of resolution.
+For that we will need normalizing renaming.
+
+\begin{definition}
+We call the following renaming a \emph{normalization} of a literal:
+\begin{enumerate}
+    \item Order variable occurences lexicographically on $(-\mathit{depth}, \mathit{index})$ 
+    where $\mathit{depth}$ is the depth at which a position of the variable occurs and $\mathit{index}$ is a position from left where the variable occurs when literal is written in standard notation.
+    \item Greedly assign variables $x_1, x_2, \dots$ in order
+\end{enumerate}
+\end{definition}
+
+It is convenient to define normalization in this way as it is well-defined on all first order logic formulas.
+In practice the terms produced in resolution are variables or Skolem terms and the Skolem terms contain every variable of the literal.
+Therefore, if Skolem terms are present, then normalization assigns names in order 
+starting from $x_1$ to the variables of the Skolem terms which names all variables already.
+When literal has no Skolem terms, then normalization simply assigns variables in the order of appearence when written.
+For example these two literals are normalized: $$R(x_1,x_2), Q(x_3, x_2, f(x_1,x_2, x_3))$$
+
 \subsection{Most general unifier}
 \begin{definition}\label{def:mgu}
 A \emph{unifier} of two literals/terms is a substitution which applied to the literals/terms makes them syntactically equal. 
 A \emph{most general unifier} (mgu) is a unifier $\sigma$, such that for every unifier $\tau$ there is a substitution $\epsilon$ so that $\tau=\epsilon\circ\sigma$.
 \end{definition}
 Any most general unifier composed with a renaming substitution is also a most general unifier.
-We will write $A\theta$ to signify the result of applying subsitution $\theta$ to literal $A$.
+We will write $A\theta$ to signify the result of applying subsitution $\theta$ to literal $A$
+and $c\theta$ to signify the result of applying substitution $\theta$ to every literal of a clause $c$.
 
 In the resolution algorithm from \cite{resolution gf} we will additionaly specify which mgu is used at the unification step,
 whereas the initial authors left it unspecified.
 We are allowed to do that as mgu's for a fixed unification problem differ by renamings only,
 but renamings influence neither the $\sqsubset$-order nor the remaining valid inferences.
-Lemma below specifies the mgu.
+The lemma below specifies the mgu.
 \begin{lemma}
 Let $A_1$, $A_2$ be two literals with an mgu $\theta$.
 Then there exist an mgu $\theta'$ such that $A_1\theta'=A_2\theta'$ is $normalized$.
@@ -237,7 +236,7 @@ Let $c_1=\{A_1\} \cup R_1$ and $c_2=\{\lnot A_2\} \cup R_1$ be two clauses,
 such that both $A_1$ and $\lnot A_2$ are maximal in their respective clauses with respect to $\sqsubset$-order,
 $\epsilon$ be a variable renaming such that $A_1\epsilon$ doesn't share variables with $A_2$
 and $A_1\epsilon$ and $A_2$ have a most general unifier $\theta$ such that $A_1\epsilon\theta=A_2\theta$ is $normalized$.
-Then the clause $\{r\epsilon\theta : r \in R_1\} \cup \{r\theta : r \in R_2\}$ is called $\sqsubset$-ordered resolvent of $c_1$ and $c_2$.
+Then the clause $R_1\epsilon\theta \cup R_2\theta\}$ is called $\sqsubset$-ordered resolvent of $c_1$ and $c_2$.
 \end{definition}
 
 \section{Full algorithm}
@@ -306,7 +305,7 @@ such that quantifier $\exists_{k}$ was in scope of quantifiers $\exists_{j+1}, \
 This includes ground literals. Variable or Skolem term sequences may be empty.
 \end{definition}
 
-The condition on Skolem symbols says that a sequence $\bar{alpha}$ is a
+The condition on Skolem symbols says that a sequence $\bar{\alpha}$ is a
 sequence of identifiers assigned at skolemization step to existential quantifiers
 at some path from root of the formula to the subformula of the quantifier $\exists_k$.
 % We will refer to this condition by saying that $\bar{alpha}$ is an existential path.
@@ -315,8 +314,36 @@ We will call a clause $forward$ if its literals are $forward$.
 % $Forward$ clauses are already normalized, because variables $\bar{x}_{1..j}$ of Skolem terms are numbered in order starting from 1
 % and Skolem terms contain all variables
 
+\begin{lemma}\label{lem:normalization}
+Let $A$ be a forward literal, $\sigma$ be its normalization and $c$ be a forward clause
+such that $B\sqsubset A$ for all literals $B \in c$.
+Then $c\sigma$ is forward.
+\end{lemma}
+\begin{proof}
+Take $A$, $\sigma$ and $c$ as above. Literal $A$ is greater in the $\sqsubset$ order from literas in $c$, therefore it contains all the variables of $c$.
+
+If $c$ is ground, then $c\sigma=\sigma$ and therefore $c\sigma$ is forward.
+Let's now assume that $c$ is not ground and therefore $A$ is also not ground.
+
+If $A$ contains a Skolem term then it is normalized, 
+because the Skolem term contains all variables of $A$ and the variables are ordered starting from 1.
+In this case $c\sigma=c$ so $c\sigma$ is forward.
+
+In the other case the literal $A$ is of form $R(\bar{x}_{i..j})$ for some relation symbol $R$ and indices $i$, $j$.
+Then $A$ after normalization is the literal $R(\bar{x}_{1..j-i+1})$ and normalization is the renaming $x_k\mapsto x_{k-i+1}$ for $k=i,\dots,j$.
+Recall that here $1..j-i+1$ denotes the interval from $1$ to $j-i+1$.
+By the assumptions that literal $A$ is greater in the $\sqsubset$ order than all the literals of the clause $c$, 
+it has no smaller $\mathit{Vardepth}$ than the literals of $c$ and therefore in $c$ there are no Skolem terms.
+Literals from $c$ are forward, use variables $x_i, \dots, x_j$ and do not contain Skolem terms.
+Therefore the arguments of atoms from $c$ are infixes of the tuple $\bar{x}_{i..j}$ and 
+the arguments of atoms from $c\sigma$ are infixes of the tuple $\bar{x}_{1..j-i+1}$.
+So $c\sigma$ is forward.
+\end{proof}
+
+
+The below and the next lemmas guarantee that only forward clauses get derived in the resolution process.
 \begin{lemma}
-If $\phi \in \mathit{FGF}$ then $CNF(\phi)$ contains only $forward$ clauses.
+If $\phi \in \mathit{FGF}$ then $\mathit{CNF}(\phi)$ contains only $forward$ clauses.
 \end{lemma}
 
 \begin{proof}
@@ -340,19 +367,19 @@ Let $A\in c_1$ and $B\in c_2$ be the literals resolved upon.
 Without loss of generality let $A$ be the positive literal.
 Then $A=R(\bar{x}_{k..l}, \bar{x}^{\bar{\alpha}}_{{l+1..m}}(\bar{x}_{1..l}))$
 and $B=\lnot R(\bar{x}_{k+s..o}, \bar{x}^{\bar{\alpha'}}_{{o+1..m+s}}(\bar{x}_{1..o}))$ for some $k,l,m,o\in \mathbb{N}$, $s\in \mathbb{Z}$
-and sequence $\bar{\alpha}$, $\bar{\alpha'}$ as in the definition 6.2. 
-Recall that here $k+s..o$ denotes the interval from $k+s$ to $o$.
+and sequences $\bar{\alpha}$, $\bar{\alpha'}$ as in the Definition~\ref{def:forward}. 
+% Recall that here $k+s..o$ denotes the interval from $k+s$ to $o$.
 We denoted by $k, m$ the interval of indices appearing in $A$, by $s$ the shift compared to $B$.
 Then $l, o$ mark indices where the sequence of variables turns into sequence of Skolem terms in $A$ and $B$ respectively.
 Let us also assume that in $A$ the prefix of variables $\bar{x}_{i..j}$
 is no shorter than in $B$, that is $l-k\geq o-(k+s)$. Two assumptions can be both made without loss of generality as
 the polarity of literals doesn't impact the unifier.
-To calculate the most general unifier let's first rename variables of $A$: $x_i \rightarrow y_i$.
+To calculate the most general unifier let's first rename variables of $A$: $x_i \mapsto y_i$.
 The unification problem is:
 \begin{align*}
-&R(&y_k&,&y_{k+1}&, \dots, &y_{o-s}&,&y_{o-s+1}&,\dots,                                  &y_l&,                                     &x^{\alpha_{l+1}}_{l+1}(\bar{y}_{1..l})&, \dots,      &x^{\alpha_{m}}_{m}(\bar{y}_{1..l})&) \\
-    \doteq
-\lnot &R(&x_{k+s}&, &x_{k+s+1}&, \dots, &x_{o}&,&x^{\alpha'_{o+1}}_{o+1}(\bar{x}_{1..o})&, \dots, &x^{\alpha'_{l+s}}_{l+s}(\bar{x}_{1..o})&, &x^{\alpha'_{l+s+1}}_{l+s+1}(\bar{x}_{1..o})&, \dots, &x^{\alpha'_{m+s}}_{m+s}(\bar{x}_{1..o})&)
+&R(&y_k&, \dots, &y_{o-s}&,&y_{o-s+1}&,\dots,                                  &y_l&,                                     &x^{\alpha_{l+1}}_{l+1}(\bar{y}_{1..l})&, \dots,      &x^{\alpha_{m}}_{m}(\bar{y}_{1..l})&) \\
+    \doteq \\
+\lnot &R(&x_{k+s}&, \dots, &x_{o}&,&x^{\alpha'_{o+1}}_{o+1}(\bar{x}_{1..o})&, \dots, &x^{\alpha'_{l+s}}_{l+s}(\bar{x}_{1..o})&, &x^{\alpha'_{l+s+1}}_{l+s+1}(\bar{x}_{1..o})&, \dots, &x^{\alpha'_{m+s}}_{m+s}(\bar{x}_{1..o})&)
 \end{align*}
 Comparing the terms we get 3 types of equations:
 \begin{enumerate}
@@ -367,12 +394,12 @@ necessarily $x^{\alpha_m}_m$ and $x^{\alpha'_{m+s}}_{m+s}$ are the same function
 Also $\bar{y}_{1..l}=\bar{x}_{1..o}$, so $o=l$ and $y_i=x_i$ for $i=1,\dots,l$.
 It follows that the clauses $c_1$, $c_2$ are already unified with the identity unification.
 Literals $A$ and $B$ are also normalized, because Skolem terms contain all variables and the variables are ordered starting from 1.
-Therefore every literal in the clause $c$ comes directly from one of $c_1$, $c_2$ so $c$ is forward.
+Therefore every literal in the clause $c$ comes directly from one of $c_1$, $c_2$, so $c$ is forward.
 
 TODO: sigma doesnt necessarily normalize
 Let us consider the other case. Then there are no equations of type 3 and $A$ doesn't contain any function terms.
-The unification has an easy solution. % We can then solve the unification problem using variables from $c_2$ in the result.
-We will define unifying substitution $\sigma : \{y_k,\dots,y_l, x_1, \dots, x_o\} \rightarrow \{x_1, \dots, x_o\}$.
+In this case the unification has an easy solution. % We can then solve the unification problem using variables from $c_2$ in the result.
+We will define the unifying substitution $\sigma : \{y_k,\dots,y_l, x_1, \dots, x_o\} \rightarrow \{x_1, \dots, x_o\}$.
 Let $\sigma$ be the identity substitution on variables $x_1$ to $x_o$. Therefore $B\sigma=B$.
 Equations of type 1 and 2 define the substitution on variables $y_k$ to $y_l$:
 \begin{itemize}
@@ -384,16 +411,16 @@ $\sigma$ unifies all pairs of relational symbol arguments at matching indices.
 The unifier $\sigma$ is the most general unifier, because every unifier more general
 has to assign a variable instead of a function term to one of the variables $y_{o-s+1}$ to $y_l$, 
 thus invalidating the corresponding equation.
-We need the unifier that leaves literals normalized. 
-If $B$ contains a Skolem term, then $B\sigma=B$ is normalized, because the Skolem term contains all variables of $B$ in the $x_1,x_2\dots$ order.
-If $B$ doesn't have Skolem terms, then $B=\lnot R(\bar{x}_{k+s..o})$ and the normalization renames it to $B=\lnot R(\bar{x_{1..o-k-s+1}})$.
-So let $\sigma'$ be the normalizing mgu:
-\begin{equation}
-\sigma'=\begin{cases}
-    \sigma &\text{$B$ contains a Skolem term} \\
-    (\lambda x_i \rightarrow x_{i-k-s+1})\circ\sigma &\text{$B$ doesn't contain Skolem terms}
-\end{cases}
-\end{equation}
+% We need the unifier that leaves literals normalized. 
+% If $B$ contains a Skolem term, then $B\sigma=B$ is normalized, because the Skolem term contains all variables of $B$ in the $x_1,x_2\dots$ order.
+% If $B$ doesn't have Skolem terms, then $B=\lnot R(\bar{x}_{k+s..o})$ and the normalization renames it to $B=\lnot R(\bar{x_{1..o-k-s+1}})$.
+% So let $\sigma'$ be the normalizing mgu:
+% \begin{equation}
+% \sigma'=\begin{cases}
+%     \sigma &\text{$B$ contains a Skolem term} \\
+%     (\lambda x_i \rightarrow x_{i-k-s+1})\circ\sigma &\text{$B$ doesn't contain Skolem terms}
+% \end{cases}
+% \end{equation}
 The substitution $\sigma'$ is the unifier used in the resolution procedure, because $B$ is $normalized$ after applying $\sigma$.
 Therefore every literal in $c$ is either a literal of $c_2$ and therefore $forward$, or it is 
 literal of $c_1$ after applying substitution $\sigma$.
