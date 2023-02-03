@@ -315,33 +315,32 @@ We will call a clause $forward$ if its literals are $forward$.
 % and Skolem terms contain all variables
 
 \begin{lemma}\label{lem:normalization}
-Let $A$ be a forward literal, $\sigma$ be its normalization and $c$ be a forward clause
-such that $B\sqsubset A$ for all literals $B \in c$.
-Then $c\sigma$ is forward.
+Let $A$ be a forward literal, $\epsilon$ be its normalization and $c$ be a forward clause with only variables from $A$ 
+such that there is no literal $B\in c$ such that $A\sqsubset B$ .
+Then $c\epsilon$ is forward.
 \end{lemma}
 \begin{proof}
-Take $A$, $\sigma$ and $c$ as above. Literal $A$ is greater in the $\sqsubset$ order from literas in $c$, therefore it contains all the variables of $c$.
+Take $A$, $\epsilon$ and $c$ as above.
 
-If $c$ is ground, then $c\sigma=\sigma$ and therefore $c\sigma$ is forward.
+If $c$ is ground, then $c\epsilon=c$ and therefore $c\epsilon$ is forward.
 Let's now assume that $c$ is not ground and therefore $A$ is also not ground.
 
 If $A$ contains a Skolem term then it is normalized, 
 because the Skolem term contains all variables of $A$ and the variables are ordered starting from 1.
-In this case $c\sigma=c$ so $c\sigma$ is forward.
+In this case $c\epsilon=c$ so $c\epsilon$ is forward.
 
 In the other case the literal $A$ is of form $R(\bar{x}_{i..j})$ for some relation symbol $R$ and indices $i$, $j$.
 Then $A$ after normalization is the literal $R(\bar{x}_{1..j-i+1})$ and normalization is the renaming $x_k\mapsto x_{k-i+1}$ for $k=i,\dots,j$.
 Recall that here $1..j-i+1$ denotes the interval from $1$ to $j-i+1$.
-By the assumptions that literal $A$ is greater in the $\sqsubset$ order than all the literals of the clause $c$, 
+By the assumptions that literal $A$ is no smaller in the $\sqsubset$ order than the literals of the clause $c$, 
 it has no smaller $\mathit{Vardepth}$ than the literals of $c$ and therefore in $c$ there are no Skolem terms.
 Literals from $c$ are forward, use variables $x_i, \dots, x_j$ and do not contain Skolem terms.
 Therefore the arguments of atoms from $c$ are infixes of the tuple $\bar{x}_{i..j}$ and 
-the arguments of atoms from $c\sigma$ are infixes of the tuple $\bar{x}_{1..j-i+1}$.
-So $c\sigma$ is forward.
+the arguments of atoms from $c\epsilon$ are infixes of the tuple $\bar{x}_{1..j-i+1}$.
+So $c\epsilon$ is forward.
 \end{proof}
 
-
-The below and the next lemmas guarantee that only forward clauses get derived in the resolution process.
+The two following lemmas guarantee that only forward clauses get derived in the resolution process.
 \begin{lemma}
 If $\phi \in \mathit{FGF}$ then $\mathit{CNF}(\phi)$ contains only $forward$ clauses.
 \end{lemma}
@@ -374,7 +373,8 @@ Then $l, o$ mark indices where the sequence of variables turns into sequence of 
 Let us also assume that in $A$ the prefix of variables $\bar{x}_{i..j}$
 is no shorter than in $B$, that is $l-k\geq o-(k+s)$. Two assumptions can be both made without loss of generality as
 the polarity of literals doesn't impact the unifier.
-To calculate the most general unifier let's first rename variables of $A$: $x_i \mapsto y_i$.
+To calculate the most general unifier let us first rename variables of $A$: $x_i \mapsto y_i$ for $i=k,\dots, l$.
+Call the said renaming $\tau$.
 The unification problem is:
 \begin{align*}
 &R(&y_k&, \dots, &y_{o-s}&,&y_{o-s+1}&,\dots,                                  &y_l&,                                     &x^{\alpha_{l+1}}_{l+1}(\bar{y}_{1..l})&, \dots,      &x^{\alpha_{m}}_{m}(\bar{y}_{1..l})&) \\
@@ -387,7 +387,7 @@ Comparing the terms we get 3 types of equations:
     \item $y_i\doteq x^{\alpha'_{i+s}}_{i+s}(\bar{x}_{1..o})$ for $i=o-s+1,\dots, l$
     \item $x_i^{\alpha_{i}}(\bar{y}_{1..l})\doteq x^{\alpha'_{i+s}}_{i+s}(\bar{x}_{1..o})$ for $s=l+1,\dots, m$
 \end{enumerate}
-Every mgu of renamed $A$ and $B$ satisfies the equations.
+Every mgu of $A\tau$ and $B$ satisfies the equations.
 
 If there are any equations of type 3 and there exists a solution, then
 necessarily $x^{\alpha_m}_m$ and $x^{\alpha'_{m+s}}_{m+s}$ are the same function symbols, so $s=0$.
@@ -396,41 +396,70 @@ It follows that the clauses $c_1$, $c_2$ are already unified with the identity u
 Literals $A$ and $B$ are also normalized, because Skolem terms contain all variables and the variables are ordered starting from 1.
 Therefore every literal in the clause $c$ comes directly from one of $c_1$, $c_2$, so $c$ is forward.
 
-TODO: sigma doesnt necessarily normalize
 Let us consider the other case. Then there are no equations of type 3 and $A$ doesn't contain any function terms.
 In this case the unification has an easy solution. % We can then solve the unification problem using variables from $c_2$ in the result.
-We will define the unifying substitution $\sigma : \{y_k,\dots,y_l, x_1, \dots, x_o\} \rightarrow \{x_1, \dots, x_o\}$.
+We will define the unifying substitution $\sigma : \{y_k,\dots,y_l, x_1, \dots, x_o\} \rightarrow \{x_1,\dots, x_o, x^{\alpha'_{o+1}}_{o+1}(\bar{x}_{1..o}), \dots, x^{\alpha'_{m+s}}_{m+s}(\bar{x}_{1..o})\}$.
 Let $\sigma$ be the identity substitution on variables $x_1$ to $x_o$. Therefore $B\sigma=B$.
 Equations of type 1 and 2 define the substitution on variables $y_k$ to $y_l$:
 \begin{itemize}
     \item $y_i \leftarrow x_{i+s}$ for $i=k,\dots, o-s$
     \item $y_i \leftarrow x^{\alpha'_{i+s}}_{i+s}(\bar{x}_{1..o})$ for $i=o-s+1,\dots, l$
 \end{itemize}
-The substitution $\sigma$ is trivially a unifier of renamed $A$ and $B$, as
+The substitution $\sigma$ is trivially a unifier of $A\tau$ and $B$, as
 $\sigma$ unifies all pairs of relational symbol arguments at matching indices.
 The unifier $\sigma$ is the most general unifier, because every unifier more general
 has to assign a variable instead of a function term to one of the variables $y_{o-s+1}$ to $y_l$, 
-thus invalidating the corresponding equation.
-% We need the unifier that leaves literals normalized. 
-% If $B$ contains a Skolem term, then $B\sigma=B$ is normalized, because the Skolem term contains all variables of $B$ in the $x_1,x_2\dots$ order.
-% If $B$ doesn't have Skolem terms, then $B=\lnot R(\bar{x}_{k+s..o})$ and the normalization renames it to $B=\lnot R(\bar{x_{1..o-k-s+1}})$.
-% So let $\sigma'$ be the normalizing mgu:
-% \begin{equation}
-% \sigma'=\begin{cases}
-%     \sigma &\text{$B$ contains a Skolem term} \\
-%     (\lambda x_i \rightarrow x_{i-k-s+1})\circ\sigma &\text{$B$ doesn't contain Skolem terms}
-% \end{cases}
-% \end{equation}
-The substitution $\sigma'$ is the unifier used in the resolution procedure, because $B$ is $normalized$ after applying $\sigma$.
-Therefore every literal in $c$ is either a literal of $c_2$ and therefore $forward$, or it is 
-literal of $c_1$ after applying substitution $\sigma$.
-$A$ is a maximal literal in $c_1$, so every literal in $c_1$ 
-\begin{itemize}
-    \item doesn't contain function terms
-    \item contains only variables from $A$ by lemma (TODO:lemma number)
-\end{itemize}
-Therefore every literal in $c_1$ is of form $(\lnot)R(\bar{y}_{i..j})$ for some infix $\bar{y}_{i..j}$ of $\bar{y}_{k..l}$.
-After substitution every literal is of form $(\lnot)R(\bar{t})$ for some infix $\bar{t}$ of $\bar{x}_{k+s..o}, \bar{x}^{\bar{\alpha'}}_{{o+1..m+s}}(\bar{x}_{1..o})$, therefore is $forward$.
+thus invalidating the corresponding equation. The unifier $\sigma$ is though not necessarily
+the one used in the resolution to derive $c$, as it does not necessarily normalize the literals $A\tau$ and $B$.
+Let $\epsilon$ be the normalization of the literal $B=B\sigma$, meaning that $\sigma\epsilon$ is the mgu used to resolve $c$.
+
+Let us now consider the clause $c'=(c_1\setminus\{A\})\tau\sigma \cup (c_2\setminus\{B\})\sigma$, 
+that is a clause such that $c=c'\epsilon$.
+Let us first note that, as the literal $B$ is maximal in $c_2$ and therefore contains all the variables of $c_2$, 
+the substitution $\sigma$ is identity on $c_2$. Therefore $(c_2\setminus\{B\})\sigma$ is forward as a subset of $c_2$ which is forward.
+Furthermore, the literal $A$ is a maximal literal in $c_1$, so its renaming $A\tau=R(\bar{y}_{k..l})$ is a maximal literal in $c_1\tau$.
+Therefore literals in $c_1\tau$ contain only variables $y_k,\dots,y_l$ and do not contain non-ground Skolem terms.
+Also the literals of $c_1$ are forward.
+If follows that every literal in $c_1\tau$ is of form $(\lnot)Q(\bar{y}_{i..j})$ for some infix $\bar{y}_{i..j}$ of $\bar{y}_{k..l}$ and some relation symbol $Q$.
+After substitution $\sigma$ every literal is of form $(\lnot)Q(\bar{t})$ for some infix $\bar{t}$ of the sequence of terms $\bar{x}_{k+s..o}, \bar{x}^{\bar{\alpha'}}_{{o+1..m+s}}(\bar{x}_{1..o})$, therefore is forward.
+We conclude that $(c_1\setminus\{A\})\tau\sigma$ is forward and in turn $c'$ is forward.
+
+To show that $c$ is forward, we will use Lemma~\ref{lem:normalization}.
+We know that $c'$ is forward, $c=c'\epsilon$ and $\epsilon$ is the normalization of $B$.
+What remains to be shown is that $B$ is no smaller in the $\sqsubset$ order than literals in $c'$.
+% It is greater than literals in the clause $(c_2\setminus\{B\})\sigma$, because it is maximal in $c_2$ and the clause is a subset of $c_2$.
+The literal $A\tau$ doesn't contain function terms and is maximal in $c_1\tau$, 
+so literals in $c_1\tau$ do not contain function terms as well.
+The substitution $\sigma$ substitutes for variables of $c_1\tau$ arguments of the atom of $B$.
+Therefore $\mathit{Vardepth}$ of literals in $c_1\tau\sigma$ is no greater than the $\mathit{Vardepth}$ of $B$.
+Also $B$ contains all variables of $c_1\tau\sigma$, so it is no smaller than literals in $c_1\tau\sigma$.
+The literal $B$ is also maximal in $c_2\sigma=c_2$, so we conclude that it is no smaller than literals in the clause $c'$.
+Lastly $B$ contains all variables of $c'$. From Lemma~\ref{lem:normalization} it follows that $c$ is forward. 
+
+%   Therefore literals in $c_1\tau\sigma$.
+% Take a literal $C=C'\tau\sigma$ from $(c_1\setminus\{A\})\tau\sigma$.
+% If $B$ is ground, that is $B=\lnot R(\bar{x}^{\bar{\alpha'}}_{{1..m+s}}())$,
+% then $C$ is also ground from the definition of $\sigma$. Otherwise, 
+% if $B$ is non-ground
+
+% From the codomain of $\sigma$ we know that $B$ contains all variables of $C$.
+% Also $B$ contains all variables of $(c_1\setminus\{A\})\tau\sigma$.
+% This is not necessarily the clause $c$ as the literals $A\tau$ and $B$ are not guaranteed to be normalized after applying $\sigma$.
+% Instead $c=$,  Let $\epsilon$ be the normalization of $B\sigma=B$. Then $c'\epsilon=c$, because 
+% We will use the Lemma~\ref{lem:normalization}. The literal $B\sigma=B$ is greater in the $\sqsubset$ order 
+% than every literal in $c'$, because it contains all variables of $c'$.
+% The lemma states that if $c'$ is forward and $\epsilon$ is the normalization of $B\sigma$.
+%  The substitution $\sigma$ is the unifier used in the resolution procedure, because $B$ is normalized after applying $\sigma$.
+% Therefore every literal in $c$ is either a literal of $c_2$ and therefore $forward$, or it is 
+% literal of $c_1$ after applying substitution $\sigma$.
+% The literal $A$ is a maximal literal in $c_1$, so $A\tau$ is a maximal literal in $c_1\tau$.
+% Therefore every literal in $c_1\tau$ 
+% \begin{itemize}
+%     \item does not contain non-ground function terms
+%     \item contains only variables from $y_{}$$A\tau$
+% \end{itemize}
+% Therefore every literal in $c_1$ is of form $(\lnot)R(\bar{y}_{i..j})$ for some infix $\bar{y}_{i..j}$ of $\bar{y}_{k..l}$.
+% After substitution every literal is of form $(\lnot)R(\bar{t})$ for some infix $\bar{t}$ of $\bar{x}_{k+s..o}, \bar{x}^{\bar{\alpha'}}_{{o+1..m+s}}(\bar{x}_{1..o})$, therefore is $forward$.
 
 \par Let us now consider factoring. Let $c_1$ be a $forward$ clause and $c$ be its factor.
 Let $A_1$, $A_2$ be the literals participating in factoring and $A_1$ be the maximal one.
