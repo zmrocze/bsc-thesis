@@ -21,7 +21,7 @@ Pokazujemy, że metoda rezolucyjna dla Fragmentu Strzeżonego może zostać zast
 do rozstrzygania Fragmentu Strzeżonego Przedniego w czasie wykładniczym i przedstawiamy implementację.
 }
 \englishabstract{
-Guarded Fragment is a decidable fragment of first order logic. 
+The Guarded Fragment is a decidable fragment of first-order logic. 
 We are concerned with a further restriction of the Guarded Fragment, called the Forward Guarded Fragment,
 in which variables appear in atoms only in the order of quantification.
 The Guarded Fragment can be decided with the resolution method in the double exponential time.
@@ -64,32 +64,32 @@ Bartosz Bednarczyk}
 \chapter{Introduction}
 
 Guarded Fragment (GF) was introduced in \cite{benthem}.
-Is is a fragment of first order logic, that allows for unbounded number of quantifiers and variables while remaining decidable.
+It is a fragment of first-order logic, that allows for an unbounded number of quantifiers and variables while remaining decidable.
 Its satisfiability problem is $2-\mathit{EXPTIME}$ complete as shown by \cite{gradel}).
-In \cite{bbe} authors introduces a restriction of the Guarded Fragment inspired by the Fluted Fragment (\cite{fluted}) called Forward Guarded Fragment (FGF).
+In \cite{bbe} authors introduce a restriction of the Guarded Fragment inspired by the Fluted Fragment (\cite{fluted}) called Forward Guarded Fragment (FGF).
 It restricts the Guarded Fragment with a requirement that variables appear inside atoms in the order of quantification.
 FGF enjoys $\mathit{EXPTIME}$ complexity for the satisfiability problem and the tree-model property (\cite{bbe}).
 % Later it was discovered (\cite{?}) that FGF reduces to modal logic (\cite{modal logic}) with a non-deterministic polynomial time reduction(???). 
 \par In \cite{nivelle} authors show how to decide GF with resolution. Here we adapt their work for FGF.
-We rely on their proof for completeness, but derive the new complexity bound. We also provide the implementation.
+We rely on their proof for completeness but derive the new complexity bound. We also provide the implementation.
 
 \chapter{The Forward Guarded Fragment}
 
 The Forward Guarded Fragment is a restriction of the Guarded Fragment to formulas where variables of atomic formulas are infixes of the series of quantified variables. 
 \begin{definition}
-Let us define the Guarded Fragment (GF) as the smallest subset of first order logic satisfying:
+Let us define the Guarded Fragment (GF) as the smallest subset of first-order logic satisfying:
 \begin{enumerate}
     \item Atomic formulas without function symbols are in GF
-    \item GF is closed under use of logical connectives
+    \item GF is closed under the use of logical connectives
     \item If $\phi(\bar{x}, \bar{y}) \in \mathit{GF}$ where $\bar{x}, \bar{y}$ are all the free variables of $\phi$ and formula $\alpha(\bar{x},\bar{y})$ is an atom
 then also $\exists_{\bar{x}} \alpha(\bar{x}, \bar{y}) \land \phi(\bar{x}, \bar{y}) \in \mathit{GF}$ and $\forall_{\bar{x}} \alpha(\bar{x}, \bar{y}) \rightarrow \phi(\bar{x}, \bar{y}) \in \mathit{GF}$
 \end{enumerate}
 \end{definition}
 \begin{definition}
-To define the Forward Fragment let us first fix a sequence of variables: $x_1, x_2, \dots$. The Forward Fragment (FF) is then the smallest subset of first order logic satisfying:
+To define the Forward Fragment let us first fix a sequence of variables: $x_1, x_2, \dots$. The Forward Fragment (FF) is then the smallest subset of first-order logic satisfying:
 \begin{enumerate}
     \item Atomic formulas of form $R(x_i, x_{i+1},\dots,x_{j})$, that is atoms whose variables in order are infixes (without gaps) of the above sequence, are in FF
-    \item FF is closed under use of logical connectives
+    \item FF is closed under the use of logical connectives
     \item If $\phi(x_1,\dots, x_{n}) \in \mathit{FF}$ then also $\exists_{\bar{x_{n}}} \phi(x_1,\dots, x_{n}) \in FF$ and $\forall_{x_n} \phi(x_1,\dots, x_{n}) \in \mathit{FF}$
 \end{enumerate}
 \end{definition}
@@ -100,20 +100,20 @@ The Forward Guarded Fragment (FGF) is the intersection of the Guarded Fragment a
 
 \section{Problem definition}
 
-The goal is to describe a resolution based procedure deciding the Forward Guarded Fragment.
-The algorithm should take FGF sentence as an input and return true or false based on whether the sentence is satisfiable.
+The goal is to describe a resolution-based procedure deciding the Forward Guarded Fragment.
+The algorithm should take an FGF sentence as an input and return true or false based on whether the sentence is satisfiable.
 
 \begin{definition}
-A first order logic formula is called \emph{satisfiable} if there exist a model where the formula gets interpreted as true.
+A first-order logic formula is called \emph{satisfiable} if there exists a model where the formula gets interpreted as true.
 \end{definition}
 
 Resolution procedure calculates a set of clauses following from the initial formula.
 An empty clause -- a contradiction -- gets derived for unsatisfiable formulas. 
 Then a syntactic proof of the negation of the input formula could be derived from the resolution process.
-The process for arbitrary first order formulas may not terminate.
+The process for arbitrary first-order formulas may not terminate.
 For the Guarded Fragment though, it has been shown in \cite{nivelle}, that the production of new clauses saturates
-and when it does, the model where formula holds can be derived from the saturation.
-For FGF, which is of our interest, the saturation is achieved quicker.
+and when it does, the model where the formula holds can be derived from the saturation.
+For FGF, which is of our interest, the saturation is achieved more quickly.
 We will need a flavour of resolution called ordered resolution, which restricts which inferences are allowed.
 
 \chapter{Resolution procedure}
@@ -124,32 +124,32 @@ Stronger restriction on the input formula guarantees faster termination.
 
 \section{Procedure overview}
 
-First a formula needs to be translated to CNF form, that is a conjunction of clauses of literals. 
-We represent a CNF formula as a set of clauses. The transformed formula is a starting point to the resolution procedure.
+First, a formula needs to be translated to CNF form, which is a conjunction of clauses of literals. 
+We represent a CNF formula as a set of clauses. The transformed formula is a starting point for the resolution procedure.
 Resolution iterates on the set of clauses, inspecting pairs of clauses for possible inferences.
-There is two ways to make an inference: resolution and factoring, described in section \textit{Inference Rules}.
+There are two ways to make an inference: resolution and factoring, described in section \textit{Inference Rules}.
 When an inference is made a new clause gets added to the set.
-Thus in the process the set grows containing increasingly more clauses following from the initial formula.
-When an empty clause gets derived, it proves unsatisfiability of the initial sentence.
-Otherwise the process stops after no new clauses can be derived. If the resulting 
+Thus in the process, the set grows containing increasingly more clauses following from the initial formula.
+When an empty clause gets derived, it proves the unsatisfiability of the initial sentence.
+Otherwise, the process stops after no new clauses can be derived. If the resulting 
 clause set contains no empty clauses, the initial formula is satisfiable.
 
 \section{Clausification}
 
 We will describe a sequence of transformations going from formulas in FGF to formulas in CNF.
-The transformations are standard for first order logic and preserve satisfiability.
+The transformations are standard for first-order logic and preserve satisfiability.
 \begin{enumerate}
     \item First \emph{NNF} is the transformation to negation normal form (NNF). 
-    It works by recursively pushing negation signs towards the atoms.
+    It works by recursively pushing negation signs toward the atoms.
     It does that by repeatedly applying rewrites following from the De Morgans' laws. 
-    See \cite{leitsch} Section 2.2 for description.
+    See \cite{leitsch} Section 2.2 for a description.
     \item \emph{Struct\textsubscript{{$\forall$}}} is the transformation applied to formulas in NNF returning a set of formulas of form $\forall_{\bar{x}}\phi(\bar{x})$ where $\phi$ is already without universal quantifiers.
     The conjunction of formulas from the resulting set is equisatisfiable with the initial formula.
     It works, by repeatedly replacing subformulas of form $\forall_{\bar{y}} \psi(\bar{x},\bar{y})$ 
     by fresh atoms $a(\bar{x})$ and adding a defining formula $\forall_{\bar{x}} \forall_{\bar{y}} a(\bar{x}) \rightarrow \psi(\bar{x},\bar{y})$.
     We observe that the sequence $\bar{x}$ followed by $\bar{y}$ is a prefix of the sequence of variables $x_1,x_2,\dots$.
     \item \emph{Skolemization} is the transformation removing all existential quantifiers and replacing the respective quantified variables with fresh function terms.
-    Namely when a quantifier $\exists_{x_i}$ gets removed, we substitute a new function term $x_i^{\alpha}(\bar{x_{1..j}})$ for the variable it bound, 
+    Namely, when a quantifier $\exists_{x_i}$ gets removed, we substitute a new function term $x_i^{\alpha}(\bar{x_{1..j}})$ for the variable it bound, 
     where $\alpha$ is a unique identifier for the given quantifier and $\bar{x_{1..j}}$ is the sequence of universally quantified variables in the scope.
     We apply it to every formula in the set resulting from Struct\textsubscript{{$\forall$}} transformation.
     % Note that then every existential quantifier is in the scope of the same universal quantifiers.
@@ -167,7 +167,7 @@ Let CNF be a function from the set of FGF formulas to the set of conjunctive set
 
 \subsection{Order}
 
-First we recall the order on literals from \cite{nivelle}.
+First, we recall the order on literals from \cite{nivelle}.
 By $\mathit{Vardepth}$ of a term we denote the maximal depth at which variable occurs in the term, that is:
 \begin{enumerate}
     \item $\mathit{Vardepth}(A)=-1$ if $A$ is ground
@@ -183,8 +183,8 @@ Let us define the following order $\sqsubset$ on literals.
     \item $A \sqsubset B$ if $\mathit{Var}(A) \subseteq Var(B)$.
 \end{enumerate}
 \end{definition}
-Eventhough not an order on the set of arbitrary literals it is an order among literals from a single guarded clause as taking part in the resolution.
-For a proof see \cite{nivelle}.
+Even though not an order on the set of arbitrary literals it is an order among literals from a single guarded clause as taking part in the resolution.
+For proof see \cite{nivelle}.
 
 We also recall the following lemma from \cite{nivelle}.
 \begin{lemma}\label{lem:guarded}
@@ -194,55 +194,55 @@ of c contains all variables of c.
 For proof see Lemma 3.7 in \cite{nivelle}.
 
 \subsection{Normalization}
-We do not want to leave choice for most general unifier at the unification step of resolution.
-For that we will need normalizing renaming.
+We do not want to leave the choice for the most general unifier at the unification step of resolution.
+For that, we will need normalizing renaming.
 
 \begin{definition}
 We call the following renaming a \emph{normalization} of a literal:
 \begin{enumerate}
-    \item Order variable occurences lexicographically on $(-\mathit{depth}, \mathit{index})$ 
+    \item Order variable occurrences lexicographically on $(-\mathit{depth}, \mathit{index})$ 
     where $\mathit{depth}$ is the depth at which a position of the variable occurs and $\mathit{index}$ is a position from left where the variable occurs when literal is written in standard notation.
     \item Greedly assign variables $x_1, x_2, \dots$ in order
 \end{enumerate}
 \end{definition}
 
-It is convenient to define normalization in this way as it is well-defined on all first order logic formulas.
-In practice the terms produced in resolution are variables or Skolem terms and the Skolem terms contain every variable of the literal.
+It is convenient to define normalization in this way as it is well-defined on all first-order logic formulas.
+In practice, the terms produced in resolution are variables or Skolem terms and the Skolem terms contain every variable of the literal.
 Therefore, if Skolem terms are present, then normalization assigns names in order 
 starting from $x_1$ to the variables of the Skolem terms which names all variables already.
-When literal has no Skolem terms, then normalization simply assigns variables in the order of appearence when written.
+When literal has no Skolem terms, then normalization simply assigns variables in the order of appearance when written.
 For example these two literals are normalized: $$R(x_1,x_2), Q(x_3, x_2, f(x_1,x_2, x_3))$$
 
 \subsection{Most general unifier}
 \begin{definition}\label{def:mgu}
-A \emph{unifier} of two literals/terms is a substitution which applied to the literals/terms makes them syntactically equal. 
+A \emph{unifier} of two literals/terms is a substitution, that applied to the literals/terms makes them syntactically equal. 
 A \emph{most general unifier} (MGU) is a unifier $\sigma$, such that for every unifier $\tau$ there is a substitution $\epsilon$ so that $\tau=\epsilon\circ\sigma$.
 \end{definition}
 Any most general unifier composed with a renaming substitution is also a most general unifier.
-We will write $A\theta$ to signify the result of applying subsitution $\theta$ to literal $A$
+We will write $A\theta$ to signify the result of applying substitution $\theta$ to literal $A$
 and $c\theta$ to signify the result of applying substitution $\theta$ to every literal of a clause $c$.
 
-In the resolution algorithm from \cite{nivelle} we will additionaly specify which MGU is used at the unification step,
+In the resolution algorithm from \cite{nivelle} we will additionally specify which MGU is used at the unification step,
 whereas the initial authors left it unspecified.
 We are allowed to do that as MGUs for a fixed unification problem differ by renamings only,
 but renamings influence neither the $\sqsubset$-order nor the remaining valid inferences.
 The lemma below specifies the MGU.
 \begin{lemma}
 Let $A_1$, $A_2$ be two literals with an MGU $\theta$.
-Then there exist an MGU $\theta'$ such that $A_1\theta'=A_2\theta'$ is $normalized$.
+Then there exists an MGU $\theta'$ such that $A_1\theta'=A_2\theta'$ is $normalized$.
 \end{lemma}
 \begin{proof}
 Let $\theta'$ be the substitution obtained by applying $\theta$ first and then the normalizing renaming of the literal $A_1\theta$.
 Substitution $\theta'$ is an MGU as it is an MGU composed with a renaming.
 \end{proof}
 
-We can now describe the rules for infering new clauses.
+We can now describe the rules for inferring new clauses.
 
 \subsection{Factoring}
 
 \begin{definition}\label{def:factoring}
 Let $c_1=\{A_1, A_2\} \cup R$ be a clause,
-such that $A_1$ is maximal in $c_1$ with respect to $\sqsubset$-order from Definition~\ref{def:order}. (TODO: verify number didnt change)
+such that $A_1$ is maximal in $c_1$ with respect to $\sqsubset$-order from Definition~\ref{def:order}.
 and $A_1, A_2$ have a most general unifier $\theta$ such that $A_1\theta=A_2\theta$ is $normalized$.
 Then the clause $\{A_1\theta\}\cup R\theta$ is called $\sqsubset$-ordered factor of $c_1$.
 \end{definition}
@@ -288,13 +288,13 @@ The above algorithm is an instance of the resolution procedure from \cite{nivell
 \chapter{Completeness}
 
 The resolution algorithm derives a set of clauses and answers the satisfiability question 
-based on whether the set contains the empty clause. The algorithm is complete, because 
+based on whether the set contains the empty clause. The algorithm is complete because 
 the empty clause is guaranteed to be derived for unsatisfiable sentences.
-This is true about unrestricted resolution and arbitrary first order logic sentences, 
+This is true about unrestricted resolution and arbitrary first-order logic sentences, 
 but also about the Guarded-Fragment and ordered resolution described above as was shown in \cite{nivelle}.
 
 \begin{theorem}
-Algorithm SAT decides satisfiability of FGF sentences.
+Algorithm SAT decides the satisfiability of FGF sentences.
 \end{theorem}
 
 \begin{proof}
@@ -318,14 +318,14 @@ We call a literal \emph{forward} if it is of form
 $$(\lnot)R(\bar{x}_{i..j}, \bar{x}^{\bar{\alpha}}_{{j+1..k}}(\bar{x}_{1..j}))$$
 for some relation symbol $R$
 and sequence $\bar{x}^{\bar{\alpha}}_{{j+1..k}}=x^{\alpha_{j+1}}_{j+1}, \dots, x^{\alpha_{k}}_{k}$ of 
-Skolem function symbols assigned in skolemization to a sequence $\exists_{j+1}, \dots, \exists_{k}$ of quantifiers 
+Skolem function symbols assigned in Skolemization to a sequence $\exists_{j+1}, \dots, \exists_{k}$ of quantifiers 
 such that quantifier $\exists_{k}$ was in scope of quantifiers $\exists_{j+1}, \dots, \exists_{k-1}$.
 This includes ground literals. Variable or Skolem term sequences may be empty.
 \end{definition}
 
 The condition on Skolem symbols says that a sequence $\bar{\alpha}$ is a
-sequence of identifiers assigned at skolemization step to existential quantifiers
-at some path from root of the formula to the subformula of the quantifier $\exists_k$.
+sequence of identifiers assigned at Skolemization step to existential quantifiers
+at some path from the root of the formula to the subformula of the quantifier $\exists_k$.
 % We will refer to this condition by saying that $\bar{alpha}$ is an existential path.
 
 We will call a clause forward if its literals are forward.
@@ -343,7 +343,7 @@ Take $A$, $\epsilon$ and $c$ as above.
 If $c$ is ground, then $c\epsilon=c$ and therefore $c\epsilon$ is forward.
 Let us now assume that $c$ is not ground and therefore $A$ is also not ground.
 
-If $A$ contains a Skolem term then it is normalized, 
+If $A$ contains a Skolem term then it is normalized
 because the Skolem term contains all variables of $A$ and the variables are ordered starting from 1.
 In this case $c\epsilon=c$ so $c\epsilon$ is forward.
 
@@ -366,22 +366,22 @@ If $\phi$ is an FGF sentence then $\mathit{CNF}(\phi)$ contains only forward cla
 \begin{proof}
 Take $\phi \in \mathit{FGF}$. Atoms of $\phi$ are of form $R(x_{i..j})$ for some relation symbol $R$ and indices $i$, $j$.
 Let us consider the steps of CNF. We only need to consider changes to atoms, 
-because forwardness of a clause is defined by forwardness of its literals and forwardness of a literal doesn't depend on its polarity.
+because the forwardness of a clause is defined by the forwardness of its literals and the forwardness of a literal doesn't depend on its polarity.
 
-First NNF transforms $\phi$ into $NNF(\phi)$, which contains the same atoms than $\phi$.
+First NNF transforms $\phi$ into $NNF(\phi)$, which contains the same atoms as $\phi$.
 
 Then Struct\textsubscript{{$\forall$}} introduces new atoms and does not modify existing ones.
 The transformation replaces subformulas of form $\forall_{\bar{y}} \psi(\bar{x},\bar{y})$ 
 by fresh atoms $a(\bar{x})$ while also adding a defining formula $\forall_{\bar{x}} \forall_{\bar{y}} a(\bar{x}) \rightarrow \psi(\bar{x},\bar{y})$ to the resulting output.
 The order of quantification does not change and no gaps get introduced in the sequence of quantified variables.
-The introduced atoms contain variables in the order of quantification, therefore after the transformation all the resulting formulas have atoms of form $R(x_{i..j})$ for some relation symbol $R$ and indices $i$, $j$.
+The introduced atoms contain variables in the order of quantification, therefore after the transformation, all the resulting formulas have atoms of form $R(x_{i..j})$ for some relation symbol $R$ and indices $i$, $j$.
 
-Let us consider skolemization. 
+Let us consider Skolemization. 
 We remind that the output of the Struct\textsubscript{{$\forall$}} transformation is a set of formulas
 of form $\forall_{\bar{x}_{1..k}} \psi(\bar{x}_{1..k})$ for some indice $k$, where $\psi$ is without universal quantifiers. 
-We show that the literals in the output of skolemization are forward. 
-Let $A$ be any literal from any of the skolemized formulas and $B$ be its atom. Let $B'=R(\bar{x}_{i..j})$ be the corresponding atom 
-before skolemization. Then the atom $B'$ is under a sequence of quantifiers $\forall_{\bar{x}_{1..k}}, \exists_{x_{k+1}}, \dots, \exists_{x_{l}}$ for some $k,l \in \mathbb{N}$.
+We show that the literals in the output of Skolemization are forward. 
+Let $A$ be any literal from any of the Skolemized formulas and $B$ be its atom. Let $B'=R(\bar{x}_{i..j})$ be the corresponding atom 
+before Skolemization. Then the atom $B'$ is under a sequence of quantifiers $\forall_{\bar{x}_{1..k}}, \exists_{x_{k+1}}, \dots, \exists_{x_{l}}$ for some $k,l \in \mathbb{N}$.
 Therefore $B=R(\bar{t})$ for some infix $\bar{t}$ of the sequence of terms $x_{1}, \dots, x_k, x_{k+1}(\bar{x}_{1..k}), \dots, x_{l}(\bar{x}_{1..k})$. 
 Therefore the literal $A$ is forward.
 
@@ -407,7 +407,7 @@ and $B=\lnot R(\bar{x}_{k+s..o}, \bar{x}^{\bar{\alpha'}}_{{o+1..m+s}}(\bar{x}_{1
 and sequences $\bar{\alpha}$, $\bar{\alpha'}$ as in the Definition~\ref{def:forward}. 
 % Recall that here $k+s..o$ denotes the interval from $k+s$ to $o$.
 We denoted by $k, m$ the interval of indices appearing in $A$, by $s$ the shift compared to $B$.
-Then $l, o$ mark indices where the sequence of variables turns into sequence of Skolem terms in $A$ and $B$ respectively.
+Then $l, o$ mark indices where the sequence of variables turns into a sequence of Skolem terms in $A$ and $B$ respectively.
 Let us also assume that in $A$ the prefix of variables $\bar{x}_{i..j}$
 is no shorter than in $B$, that is $l-k\geq o-(k+s)$. Two assumptions can be both made without loss of generality as
 the polarity of literals doesn't impact the unifier.
@@ -431,11 +431,11 @@ If there are any equations of type 3 and there exists a solution, then
 necessarily $x^{\alpha_m}_m$ and $x^{\alpha'_{m+s}}_{m+s}$ are the same function symbols, so $s=0$.
 Also $\bar{y}_{1..l}=\bar{x}_{1..o}$, so $o=l$ and $y_i=x_i$ for $i=1,\dots,l$.
 It follows that the clauses $c_1$, $c_2$ are already unified with the identity unification.
-Literals $A$ and $B$ are also normalized, because Skolem terms contain all variables and the variables are ordered starting from 1.
+Literals $A$ and $B$ are also normalized because Skolem terms contain all variables and the variables are ordered starting from 1.
 Therefore every literal in the clause $c$ comes directly from one of $c_1$, $c_2$, so $c$ is forward.
 
 Let us consider the other case. Then there are no equations of type 3 and $A$ doesn't contain any function terms.
-In this case the unification has an easy solution. % We can then solve the unification problem using variables from $c_2$ in the result.
+In this case, the unification has an easy solution. % We can then solve the unification problem using variables from $c_2$ in the result.
 We will define the unifying substitution $\sigma : \{y_k,\dots,y_l, x_1, \dots, x_o\} \rightarrow \{x_1,\dots, x_o, x^{\alpha'_{o+1}}_{o+1}(\bar{x}_{1..o}), \dots, x^{\alpha'_{m+s}}_{m+s}(\bar{x}_{1..o})\}$.
 Let $\sigma$ be the identity substitution on variables $x_1$ to $x_o$. Therefore $B\sigma=B$.
 Equations of type 1 and 2 define the substitution on variables $y_k$ to $y_l$:
@@ -457,7 +457,7 @@ Let us first note that, as the literal $B$ is maximal in $c_2$ and therefore con
 the substitution $\sigma$ is identity on $c_2$. Therefore $(c_2\setminus\{B\})\sigma$ is forward as a subset of $c_2$ which is forward.
 Furthermore, the literal $A$ is a maximal literal in $c_1$, so its renaming $A\tau=R(\bar{y}_{k..l})$ is a maximal literal in $c_1\tau$.
 Therefore literals in $c_1\tau$ contain only variables $y_k,\dots,y_l$ and do not contain non-ground Skolem terms.
-Also the literals of $c_1$ are forward.
+Also, the literals of $c_1$ are forward.
 If follows that every literal in $c_1\tau$ is of form $(\lnot)Q(\bar{y}_{i..j})$ for some infix $\bar{y}_{i..j}$ of $\bar{y}_{k..l}$ and some relation symbol $Q$.
 After substitution $\sigma$ every literal is of form $(\lnot)Q(\bar{t})$ for some infix $\bar{t}$ of the sequence of terms $\bar{x}_{k+s..o}, \bar{x}^{\bar{\alpha'}}_{{o+1..m+s}}(\bar{x}_{1..o})$, therefore is forward.
 We conclude that $(c_1\setminus\{A\})\tau\sigma$ is forward and in turn $c'$ is forward.
@@ -470,14 +470,14 @@ The literal $A\tau$ doesn't contain function terms and is maximal in $c_1\tau$,
 so literals in $c_1\tau$ do not contain function terms as well.
 The substitution $\sigma$ substitutes for variables of $c_1\tau$ arguments of the atom of $B$.
 Therefore $\mathit{Vardepth}$ of literals in $c_1\tau\sigma$ is no greater than the $\mathit{Vardepth}$ of $B$.
-Also $B$ contains all variables of $c_1\tau\sigma$, so it is no smaller than literals in $c_1\tau\sigma$.
+Also, $B$ contains all variables of $c_1\tau\sigma$, so it is no smaller than literals in $c_1\tau\sigma$.
 The literal $B$ is also maximal in $c_2\sigma=c_2$, so we conclude that it is no smaller than literals in the clause $c'$.
-Lastly $B$ contains all variables of $c'$. From Lemma~\ref{lem:normalization} it follows that $c$ is forward.
+Lastly, $B$ contains all variables of $c'$. From Lemma~\ref{lem:normalization} it follows that $c$ is forward.
 
 \par Let us now consider factoring. Let $c_1$ be a forward clause and $c$ be its factor.
 Let $A_1$, $A_2$ be the literals participating in factoring and $A_1$ be the maximal one.
 Literal $A_1$ contains all variables of $A_2$ by Lemma~\ref{lem:guarded} and both literals are forward. 
-It follows that the literals are indentical. Let $\epsilon$ be the normalization of $A_1$.
+It follows that the literals are identical. Let $\epsilon$ be the normalization of $A_1$.
 Then $c=(c_1\setminus\{A_2\})\epsilon$. From Lemma~\ref{lem:normalization} applied to the 
 literal $A_1$, its renaming $\epsilon$ and the forward clause $c_1\setminus\{A_2\}$ we have that $c$ is forward.
 \end{proof}
@@ -487,7 +487,7 @@ Let $\phi$ be an FGF formula with $l$ existential quantifiers and
 $A$ be the set of Skolem function symbols in $CNF(\phi)$.
 Let $m$ be the number of relation symbols in $\phi$, $a$ be the maximal arity
 of relation symbols and $n$ be the number of variables in $\phi$. 
-Then there is at most $2\cdot m \cdot n^2 \cdot l$ forward literals using relations from $\phi$ and function symbols from $A$.
+Then there are at most $2\cdot m \cdot n^2 \cdot l$ forward literals using relations from $\phi$ and function symbols from $A$.
 \end{lemma}
 \begin{proof}
 A forward literal $(\lnot)R(\bar{x}_{i..j}, \bar{x}^{\bar{\alpha}}_{{j+1..k}}(\bar{x}_{1..j}))$
@@ -497,7 +497,7 @@ Then a sequence of Skolem terms follows.
 The sequence ends with some Skolem term $x^{\alpha_k}_k(\bar{x}_{1..j})$ and that term 
 already defines the sequence of Skolem terms $\bar{x}^{\bar{\alpha_{j+1..k-1}}}_{{j+1..k-1}}(\bar{x}_{1..j}))$,
 because in $\phi$ the quantifier identified by $\alpha_k$ is in the scope of exactly one sequence of quantifiers identified by some $\alpha_{j+1},\dots, \alpha_{k-1}$.
-Therefore there is at most $2\cdot m \cdot n^2 \cdot l$ forward literals from the lemma.
+Therefore there are at most $2\cdot m \cdot n^2 \cdot l$ forward literals from the lemma.
 \end{proof}
 
 \section{Procedure complexity}
@@ -507,27 +507,27 @@ Procedure SAT works in exponential time with respect to the length of the input 
 \end{theorem}
 
 \begin{proof}
-The complexity is made up by the complexity of the CNF transformation plus the complexity of the following resolution process.
+The complexity is made up of the complexity of the CNF transformation plus the complexity of the following resolution process.
 Let $n$ be the length of the input formula.
 Let us consider clausification first:
 \begin{enumerate}
     \item \emph{NNF} works in linear time with respect to the length of the formula and increases the size of the formula by a constant factor.
-    \item The output of Struct\textsubscript{{$\forall$}} transformation is a set of formulas. There is at most as many formulas as there is 
-    subformulas of the input and they are no bigger than the input, so the output is at most of quadratic size compared to the input.
-    Therefore Struct\textsubscript{{$\forall$}} works in at most quadratic time.
-    \item The skolemization works in linear time and increases the formula by a constant factor.
+    \item The output of Struct\textsubscript{{$\forall$}} transformation is a set of formulas. There are at most as many formulas as there are 
+    subformulas of the input and they are no bigger than the input, so the output is at most of the quadratic size compared to the input.
+    Therefore Struct\textsubscript{{$\forall$}} works in at most the quadratic time.
+    \item The Skolemization works in linear time and increases the formula by a constant factor.
     \item Finally, clausification may produce exponentially many polynomially sized clauses.
 \end{enumerate}
 Clearly, the complexity of CNF translation is no bigger than exponential.
 Then the resolution process starts. The process ends once all possible clauses get derived.
 From Lemma~\ref{lem:basis} and Lemma~\ref{lem:step} we know that all the derived terms will be forward.
-From lemma we know that there is at most $2\cdot n^4$ forward terms. 
-Therefore there is at most $k=2^{2\cdot n^4}$ forward clauses. 
+From the lemma, we know that there are at most $2\cdot n^4$ forward terms. 
+Therefore there are at most $k=2^{2\cdot n^4}$ forward clauses. 
 Algorithm SAT has to inspect every possible pair of clauses to derive a new clause or terminate.
-A forward literal is at most of quadratic size wrt. to $n$ as the arity of both the relation symbols and function symbols is bounded by $n$.
+A forward literal is at most quadratic size wrt. to $n$ as the arity of both the relation symbols and function symbols is bounded by $n$.
 Inspecting a pair of clauses takes polynomial time with respect to $n$, because 
 both the cardinality of the clause and the sizes of the literals are polynomial.
-Therefore a new clause gets derived after $k^2$ polynomially sized steps and algorithm terminates 
+Therefore a new clause gets derived after $k^2$ polynomially sized steps and the algorithm terminates 
 after producing no more than $k$ clauses. 
 We conclude that SAT works in exponential time with respect to n.
 \end{proof}
@@ -538,7 +538,7 @@ We conclude that SAT works in exponential time with respect to n.
 
 The implementation is a library written in the Scala programming language. It is compiled with the standard \emph{sbt} tool as described in the projects \path{README.md}. 
 It provides a data type \texttt{GFFormula} common for both the GF formulas and FGF formulas.
-User may want to use the smart constructor \texttt{fgfSentence} to construct \texttt{GFFormula} that is a valid FGF sentence.
+Users may want to use the smart constructor \texttt{fgfSentence} to construct \texttt{GFFormula} that is a valid FGF sentence.
 The library also provides a function \texttt{SAT} of type $\mathit{GFFormula} \rightarrow \mathit{Bool}$
 implementing the algorithm SAT~\ref{alg:sat}.
 
