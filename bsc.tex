@@ -216,24 +216,24 @@ For example these two literals are normalized: $$R(x_1,x_2), Q(x_3, x_2, f(x_1,x
 \subsection{Most general unifier}
 \begin{definition}\label{def:mgu}
 A \emph{unifier} of two literals/terms is a substitution which applied to the literals/terms makes them syntactically equal. 
-A \emph{most general unifier} (mgu) is a unifier $\sigma$, such that for every unifier $\tau$ there is a substitution $\epsilon$ so that $\tau=\epsilon\circ\sigma$.
+A \emph{most general unifier} (MGU) is a unifier $\sigma$, such that for every unifier $\tau$ there is a substitution $\epsilon$ so that $\tau=\epsilon\circ\sigma$.
 \end{definition}
 Any most general unifier composed with a renaming substitution is also a most general unifier.
 We will write $A\theta$ to signify the result of applying subsitution $\theta$ to literal $A$
 and $c\theta$ to signify the result of applying substitution $\theta$ to every literal of a clause $c$.
 
-In the resolution algorithm from \cite{nivelle} we will additionaly specify which mgu is used at the unification step,
+In the resolution algorithm from \cite{nivelle} we will additionaly specify which MGU is used at the unification step,
 whereas the initial authors left it unspecified.
-We are allowed to do that as mgu's for a fixed unification problem differ by renamings only,
+We are allowed to do that as MGUs for a fixed unification problem differ by renamings only,
 but renamings influence neither the $\sqsubset$-order nor the remaining valid inferences.
-The lemma below specifies the mgu.
+The lemma below specifies the MGU.
 \begin{lemma}
-Let $A_1$, $A_2$ be two literals with an mgu $\theta$.
-Then there exist an mgu $\theta'$ such that $A_1\theta'=A_2\theta'$ is $normalized$.
+Let $A_1$, $A_2$ be two literals with an MGU $\theta$.
+Then there exist an MGU $\theta'$ such that $A_1\theta'=A_2\theta'$ is $normalized$.
 \end{lemma}
 \begin{proof}
 Let $\theta'$ be the substitution obtained by applying $\theta$ first and then the normalizing renaming of the literal $A_1\theta$.
-Substitution $\theta'$ is an mgu as it is an mgu composed with a renaming.
+Substitution $\theta'$ is an MGU as it is an MGU composed with a renaming.
 \end{proof}
 
 We can now describe the rules for infering new clauses.
@@ -314,9 +314,9 @@ $$x^{\alpha_{j}}_{j}(\bar{x}_{1..i}), x^{\alpha_{j+1}}_{j+1}(\bar{x}_{1..i}), \d
 \end{definition}
 
 \begin{definition}\label{def:forward}
-We call a literal $forward$ if it is of form
+We call a literal \emph{forward} if it is of form
 $$(\lnot)R(\bar{x}_{i..j}, \bar{x}^{\bar{\alpha}}_{{j+1..k}}(\bar{x}_{1..j}))$$
-for some relational symbol $R$
+for some relation symbol $R$
 and sequence $\bar{x}^{\bar{\alpha}}_{{j+1..k}}=x^{\alpha_{j+1}}_{j+1}, \dots, x^{\alpha_{k}}_{k}$ of 
 Skolem function symbols assigned in skolemization to a sequence $\exists_{j+1}, \dots, \exists_{k}$ of quantifiers 
 such that quantifier $\exists_{k}$ was in scope of quantifiers $\exists_{j+1}, \dots, \exists_{k-1}$.
@@ -328,7 +328,7 @@ sequence of identifiers assigned at skolemization step to existential quantifier
 at some path from root of the formula to the subformula of the quantifier $\exists_k$.
 % We will refer to this condition by saying that $\bar{alpha}$ is an existential path.
 
-We will call a clause $forward$ if its literals are $forward$.
+We will call a clause forward if its literals are forward.
 % $Forward$ clauses are already normalized, because variables $\bar{x}_{1..j}$ of Skolem terms are numbered in order starting from 1
 % and Skolem terms contain all variables
 
@@ -341,7 +341,7 @@ Then $c\epsilon$ is forward.
 Take $A$, $\epsilon$ and $c$ as above.
 
 If $c$ is ground, then $c\epsilon=c$ and therefore $c\epsilon$ is forward.
-Let's now assume that $c$ is not ground and therefore $A$ is also not ground.
+Let us now assume that $c$ is not ground and therefore $A$ is also not ground.
 
 If $A$ contains a Skolem term then it is normalized, 
 because the Skolem term contains all variables of $A$ and the variables are ordered starting from 1.
@@ -360,7 +360,7 @@ So $c\epsilon$ is forward.
 
 The two following lemmas guarantee that only forward clauses get derived in the resolution process.
 \begin{lemma}\label{lem:basis}
-If $\phi$ is an FGF sentence then $\mathit{CNF}(\phi)$ contains only $forward$ clauses.
+If $\phi$ is an FGF sentence then $\mathit{CNF}(\phi)$ contains only forward clauses.
 \end{lemma}
 
 \begin{proof}
@@ -379,10 +379,11 @@ The introduced atoms contain variables in the order of quantification, therefore
 Let us consider skolemization. 
 We remind that the output of the Struct\textsubscript{{$\forall$}} transformation is a set of formulas
 of form $\forall_{\bar{x}_{1..k}} \psi(\bar{x}_{1..k})$ for some indice $k$, where $\psi$ is without universal quantifiers. 
-Let $A$ be an atom in one of the skolemized formulas. Let $B=R(\bar{x}_{i..j})$ be the corresponding atom 
-before skolemization. Then the atom $B$ is under a sequence of quantifiers $\forall_{\bar{x}_{1..k}}, \exists_{x_{k+1}}, \dots, \exists_{x_{l}}$.
-Therefore $A=R(\bar{t})$ for some infix $\bar{t}$ of the sequence of terms $x_{1}, \dots, x_k, x_{k+1}(\bar{x}_{1..k}), \dots, x_{l}(\bar{x}_{1..k})$. 
-The literals $A$ and $\lnot A$ are forward.
+We show that the literals in the output of skolemization are forward. 
+Let $A$ be any literal from any of the skolemized formulas and $B$ be its atom. Let $B'=R(\bar{x}_{i..j})$ be the corresponding atom 
+before skolemization. Then the atom $B'$ is under a sequence of quantifiers $\forall_{\bar{x}_{1..k}}, \exists_{x_{k+1}}, \dots, \exists_{x_{l}}$ for some $k,l \in \mathbb{N}$.
+Therefore $B=R(\bar{t})$ for some infix $\bar{t}$ of the sequence of terms $x_{1}, \dots, x_k, x_{k+1}(\bar{x}_{1..k}), \dots, x_{l}(\bar{x}_{1..k})$. 
+Therefore the literal $A$ is forward.
 
 Lastly, clausification does not modify the atoms. 
 Every atom of $\mathit{CNF}(\phi)$ is an atom of the output of the previous Struct\textsubscript{{$\forall$}} transformation.
@@ -392,13 +393,13 @@ Therefore $\mathit{CNF}(\phi)$ contains only forward literals.
 % \begin{lemma}\ \\
 \begin{lemma}
 \begin{enumerate}\label{lem:step}
-    \item If $c_1$, $c_2$ are $forward$ clauses and $c$ is ordered resolvent of $c_1$ and $c_2$, then $c$ is forward.
-    \item If $c_1$ is $forward$ clause and $c$ is a factor of $c_1$, then $c$ is $forward$.  
+    \item If $c_1$, $c_2$ are forward clauses and $c$ is ordered resolvent of $c_1$ and $c_2$, then $c$ is forward.
+    \item If $c_1$ is forward clause and $c$ is a factor of $c_1$, then $c$ is forward.  
 \end{enumerate}
 \end{lemma}
 
 \begin{proof}
-\par We consider resolution first. Let $c_1$, $c_2$ be $forward$ clauses and $c$ be their ordered resolvent.
+\par We consider resolution first. Let $c_1$, $c_2$ be forward clauses and $c$ be their ordered resolvent.
 Let $A\in c_1$ and $B\in c_2$ be the literals resolved upon.
 Without loss of generality let $A$ be the positive literal.
 Then $A=R(\bar{x}_{k..l}, \bar{x}^{\bar{\alpha}}_{{l+1..m}}(\bar{x}_{1..l}))$
@@ -413,18 +414,18 @@ the polarity of literals doesn't impact the unifier.
 To calculate the most general unifier let us first rename variables of $A$: $x_i \mapsto y_i$ for $i=k,\dots, l$.
 Call the said renaming $\tau$.
 The unification problem is:
-\begin{align*}
-&R(&y_k&, \dots, &y_{o-s}&,&y_{o-s+1}&,\dots,                                  &y_l&,                                     &x^{\alpha_{l+1}}_{l+1}(\bar{y}_{1..l})&, \dots,      &x^{\alpha_{m}}_{m}(\bar{y}_{1..l})&) \\
+\begin{flalign*}
+&R(&&y_k, \dots, &&y_{o-s},&&y_{o-s+1},\dots,                                  &&y_l,                                     &&x^{\alpha_{l+1}}_{l+1}(\bar{y}_{1..l}), \dots,      &&x^{\alpha_{m}}_{m}(\bar{y}_{1..l})) \\
     \doteq \\
-\lnot &R(&x_{k+s}&, \dots, &x_{o}&,&x^{\alpha'_{o+1}}_{o+1}(\bar{x}_{1..o})&, \dots, &x^{\alpha'_{l+s}}_{l+s}(\bar{x}_{1..o})&, &x^{\alpha'_{l+s+1}}_{l+s+1}(\bar{x}_{1..o})&, \dots, &x^{\alpha'_{m+s}}_{m+s}(\bar{x}_{1..o})&)
-\end{align*}
+\lnot &R(&&x_{k+s}, \dots, &&x_{o},&&x^{\alpha'_{o+1}}_{o+1}(\bar{x}_{1..o}), \dots, &&x^{\alpha'_{l+s}}_{l+s}(\bar{x}_{1..o}), &&x^{\alpha'_{l+s+1}}_{l+s+1}(\bar{x}_{1..o}), \dots, &&x^{\alpha'_{m+s}}_{m+s}(\bar{x}_{1..o}))
+\end{flalign*}
 Comparing the terms we get 3 types of equations:
 \begin{enumerate}
     \item $y_i\doteq x_{i+s}$ for $i=k,\dots, o-s$
     \item $y_i\doteq x^{\alpha'_{i+s}}_{i+s}(\bar{x}_{1..o})$ for $i=o-s+1,\dots, l$
     \item $x_i^{\alpha_{i}}(\bar{y}_{1..l})\doteq x^{\alpha'_{i+s}}_{i+s}(\bar{x}_{1..o})$ for $s=l+1,\dots, m$
 \end{enumerate}
-Every mgu of $A\tau$ and $B$ satisfies the equations.
+Every MGU of $A\tau$ and $B$ satisfies the equations.
 
 If there are any equations of type 3 and there exists a solution, then
 necessarily $x^{\alpha_m}_m$ and $x^{\alpha'_{m+s}}_{m+s}$ are the same function symbols, so $s=0$.
@@ -443,12 +444,12 @@ Equations of type 1 and 2 define the substitution on variables $y_k$ to $y_l$:
     \item $y_i \leftarrow x^{\alpha'_{i+s}}_{i+s}(\bar{x}_{1..o})$ for $i=o-s+1,\dots, l$
 \end{itemize}
 The substitution $\sigma$ is trivially a unifier of $A\tau$ and $B$, as
-$\sigma$ unifies all pairs of relational symbol arguments at matching indices.
+$\sigma$ unifies all pairs of relation symbol arguments at matching indices.
 The unifier $\sigma$ is the most general unifier, because every unifier more general
 has to assign a variable instead of a function term to one of the variables $y_{o-s+1}$ to $y_l$, 
 thus invalidating the corresponding equation. The unifier $\sigma$ is though not necessarily
 the one used in the resolution to derive $c$, as it does not necessarily normalize the literals $A\tau$ and $B$.
-Let $\epsilon$ be the normalization of the literal $B=B\sigma$, meaning that $\sigma\epsilon$ is the mgu used to resolve $c$.
+Let $\epsilon$ be the normalization of the literal $B=B\sigma$, meaning that $\sigma\epsilon$ is the MGU used to resolve $c$.
 
 Let us now consider the clause $c'=(c_1\setminus\{A\})\tau\sigma \cup (c_2\setminus\{B\})\sigma$, 
 that is a clause such that $c=c'\epsilon$.
@@ -473,9 +474,9 @@ Also $B$ contains all variables of $c_1\tau\sigma$, so it is no smaller than lit
 The literal $B$ is also maximal in $c_2\sigma=c_2$, so we conclude that it is no smaller than literals in the clause $c'$.
 Lastly $B$ contains all variables of $c'$. From Lemma~\ref{lem:normalization} it follows that $c$ is forward.
 
-\par Let us now consider factoring. Let $c_1$ be a $forward$ clause and $c$ be its factor.
+\par Let us now consider factoring. Let $c_1$ be a forward clause and $c$ be its factor.
 Let $A_1$, $A_2$ be the literals participating in factoring and $A_1$ be the maximal one.
-Literal $A_1$ contains all variables of $A_2$ by Lemma~\ref{lem:guarded} and both literals are $forward$. 
+Literal $A_1$ contains all variables of $A_2$ by Lemma~\ref{lem:guarded} and both literals are forward. 
 It follows that the literals are indentical. Let $\epsilon$ be the normalization of $A_1$.
 Then $c=(c_1\setminus\{A_2\})\epsilon$. From Lemma~\ref{lem:normalization} applied to the 
 literal $A_1$, its renaming $\epsilon$ and the forward clause $c_1\setminus\{A_2\}$ we have that $c$ is forward.
@@ -484,13 +485,13 @@ literal $A_1$, its renaming $\epsilon$ and the forward clause $c_1\setminus\{A_2
 \begin{lemma}\label{lem:size}
 Let $\phi$ be an FGF formula with $l$ existential quantifiers and 
 $A$ be the set of Skolem function symbols in $CNF(\phi)$.
-Let $m$ be the number of relational symbols in $\phi$, $a$ be the maximal arity
-of relational symbols and $n$ be the number of variables in $\phi$. 
+Let $m$ be the number of relation symbols in $\phi$, $a$ be the maximal arity
+of relation symbols and $n$ be the number of variables in $\phi$. 
 Then there is at most $2\cdot m \cdot n^2 \cdot l$ forward literals using relations from $\phi$ and function symbols from $A$.
 \end{lemma}
 \begin{proof}
 A forward literal $(\lnot)R(\bar{x}_{i..j}, \bar{x}^{\bar{\alpha}}_{{j+1..k}}(\bar{x}_{1..j}))$
-begins with a possibly negated relational symbol giving $2\cdot m$ options. 
+begins with a possibly negated relation symbol giving $2\cdot m$ options. 
 Then one of $n^2$ infixes of sequence $x_1, \dots, x_n$ follows.
 Then a sequence of Skolem terms follows.
 The sequence ends with some Skolem term $x^{\alpha_k}_k(\bar{x}_{1..j})$ and that term 
@@ -502,7 +503,7 @@ Therefore there is at most $2\cdot m \cdot n^2 \cdot l$ forward literals from th
 \section{Procedure complexity}
 
 \begin{theorem}
-Procedure $SAT$ works in exponential time with respect to the length of the input formula. 
+Procedure SAT works in exponential time with respect to the length of the input formula. 
 \end{theorem}
 
 \begin{proof}
@@ -519,9 +520,9 @@ Let us consider clausification first:
 \end{enumerate}
 Clearly, the complexity of CNF translation is no bigger than exponential.
 Then the resolution process starts. The process ends once all possible clauses get derived.
-From Lemma~\ref{lem:basis} and Lemma~\ref{lem:step} we know that all the derived terms will be $forward$.
-From lemma we know that there is at most $2\cdot n^4$ $forward$ terms. 
-Therefore there is at most $k=2^{2\cdot n^4}$ $forward$ clauses. 
+From Lemma~\ref{lem:basis} and Lemma~\ref{lem:step} we know that all the derived terms will be forward.
+From lemma we know that there is at most $2\cdot n^4$ forward terms. 
+Therefore there is at most $k=2^{2\cdot n^4}$ forward clauses. 
 Algorithm SAT has to inspect every possible pair of clauses to derive a new clause or terminate.
 A forward literal is at most of quadratic size wrt. to $n$ as the arity of both the relation symbols and function symbols is bounded by $n$.
 Inspecting a pair of clauses takes polynomial time with respect to $n$, because 
@@ -535,7 +536,7 @@ We conclude that SAT works in exponential time with respect to n.
 
 \section{User guide}
 
-The implementation is a Scala library. It is compiled with the standard \emph{sbt} tool as described in the projects \path{README.md}. 
+The implementation is a library written in the Scala programming language. It is compiled with the standard \emph{sbt} tool as described in the projects \path{README.md}. 
 It provides a data type \texttt{GFFormula} common for both the GF formulas and FGF formulas.
 User may want to use the smart constructor \texttt{fgfSentence} to construct \texttt{GFFormula} that is a valid FGF sentence.
 The library also provides a function \texttt{SAT} of type $\mathit{GFFormula} \rightarrow \mathit{Bool}$
@@ -545,11 +546,11 @@ implementing the algorithm SAT~\ref{alg:sat}.
 
 \begin{thebibliography}{1}
 \bibitem{benthem} H. Andréka, I. Németi, J. van Benthem, 1998. Modal Languages and Bounded Fragments of Predicate Logic. Journal of Philosophical Logic, 27(3), 217--274.
-\bibitem{gradel} E. Grädel, 1999, On the Restraining Power of Guards. The Journal of Symbolic Logic, 64(4), 1719--1742, https://doi.org/10.2307/2586808
+\bibitem{gradel} E. Grädel, 1999, On the Restraining Power of Guards. The Journal of Symbolic Logic, 64(4), 1719--1742, \url{https://doi.org/10.2307/2586808}
 \bibitem{fluted} I. Pratt-Hartmann , W. Szwast, L. Tendera, 2019, The fluted fragment revisited. The Journal of Symbolic Logic
-\bibitem{bbe} B. Bednarczyk, 2021, Exploiting Forwardness: Satisfiability and Query-Entailment in Forward Guarded Fragment. Logics in Artificial Intelligence 17th European Conference, JELIA 2021, https://dx.doi.org/10.1007/978-3-030-75775-5
-\bibitem{nivelle} H. de Nivelle, M. de Rijke, 2003, Deciding the guarded fragments by resolution. Journal of Symbolic Computation, 35(1), 21-58, https://doi.org/10.1016/S0747-7171(02)00092-5
-\bibitem{leitsch} A. Leitsch, 1997, The resolution calculus. Texts in Theoretical Computer Science, Springer, https://doi.org/10.1007/978-3-642-60605-2
+\bibitem{bbe} B. Bednarczyk, 2021, Exploiting Forwardness: Satisfiability and Query-Entailment in Forward Guarded Fragment. Logics in Artificial Intelligence 17th European Conference, JELIA 2021, \url{https://dx.doi.org/10.1007/978-3-030-75775-5}
+\bibitem{nivelle} H. de Nivelle, M. de Rijke, 2003, Deciding the guarded fragments by resolution. Journal of Symbolic Computation, 35(1), 21-58, \url{https://doi.org/10.1016/S0747-7171(02)00092-5}
+\bibitem{leitsch} A. Leitsch, 1997, The resolution calculus. Texts in Theoretical Computer Science, Springer, \url{https://doi.org/10.1007/978-3-642-60605-2}
 \end{thebibliography}
 
 % \begin{thebibliography}{1}
