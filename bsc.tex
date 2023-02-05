@@ -434,9 +434,9 @@ It follows that the clauses $c_1$, $c_2$ are already unified with the identity u
 Literals $A$ and $B$ are also normalized because Skolem terms contain all variables and the variables are ordered starting from 1.
 Therefore every literal in the clause $c$ comes directly from one of $c_1$, $c_2$, so $c$ is forward.
 
-Let us consider the other case. Then there are no equations of type 3 and $A$ does not contain function terms.
+Let us consider the other case. Then there are no equations of type 3 and $A$ does not contain function terms. 
 In this case, the unification has an easy solution. 
-We will define the unifying substitution $\sigma : \{y_k,\dots,y_l, x_1, \dots, x_o\} \rightarrow \{x_1,\dots, x_o, x^{\alpha'_{o+1}}_{o+1}(\bar{x}_{1..o}), \dots, x^{\alpha'_{m+s}}_{m+s}(\bar{x}_{1..o})\}$.
+We will define the unifying substitution: $$\sigma : \{y_k,\dots,y_l, x_1, \dots, x_o\} \rightarrow \{x_1,\dots, x_o, x^{\alpha'_{o+1}}_{o+1}(\bar{x}_{1..o}), \dots, x^{\alpha'_{m+s}}_{m+s}(\bar{x}_{1..o})\}$$
 Let $\sigma$ be the identity substitution on variables $x_1$ to $x_o$. Therefore $B\sigma=B$.
 Equations of type 1 and 2 define the substitution on variables $y_k$ to $y_l$:
 \begin{itemize}
