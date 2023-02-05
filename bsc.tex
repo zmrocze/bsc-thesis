@@ -65,10 +65,10 @@ Bartosz Bednarczyk}
 
 Guarded Fragment (GF) was introduced in \cite{benthem}.
 It is a fragment of first-order logic, that allows for an unbounded number of quantifiers and variables while remaining decidable.
-Its satisfiability problem is $2-\mathit{EXPTIME}$ complete as shown by \cite{gradel}.
+Its satisfiability problem is 2-EXPTIME complete as shown by \cite{gradel}.
 In \cite{bbe} authors introduce a restriction of the Guarded Fragment inspired by the Fluted Fragment \cite{fluted} called Forward Guarded Fragment (FGF).
 It restricts the Guarded Fragment with a requirement that variables appear inside atoms in the order of quantification.
-FGF enjoys $\mathit{EXPTIME}$ complexity for the satisfiability problem and the tree-model property \cite{bbe}.
+FGF enjoys EXPTIME complexity for the satisfiability problem and the tree-model property \cite{bbe}.
 % Later it was discovered (\cite{?}) that FGF reduces to modal logic (\cite{modal logic}) with a non-deterministic polynomial time reduction(???). 
 \par In \cite{nivelle} authors show how to decide GF with resolution. Here we adapt their work for FGF.
 We rely on their proof for completeness but derive the new complexity bound. We also provide the implementation.
