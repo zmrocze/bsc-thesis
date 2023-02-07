@@ -554,7 +554,8 @@ It is compiled with the standard \emph{sbt} tool as described in the projects \p
 It provides a data type \texttt{GFFormula} common for both the GF formulas and the FGF formulas.
 Users may want to use the smart constructor \texttt{fgfSentence} to construct a \texttt{GFFormula} value that is a valid FGF sentence.
 The library also provides a function \texttt{SAT} of type $\mathit{GFFormula} \rightarrow \mathit{Bool}$
-implementing the algorithm SAT~\ref{alg:sat}.
+implementing the algorithm SAT~\ref{alg:sat}. 
+The implementation works correctly for all GF sentences, guaranteeing single exponential complexity only for FGF sentences.
 
 %%%%% BIBLIOGRAFIA
 
@@ -565,7 +566,7 @@ implementing the algorithm SAT~\ref{alg:sat}.
 \bibitem{bbe} B. Bednarczyk, 2021, Exploiting Forwardness: Satisfiability and Query-Entailment in Forward Guarded Fragment, Logics in Artificial Intelligence 17th European Conference, JELIA 2021, \url{https://dx.doi.org/10.1007/978-3-030-75775-5}
 \bibitem{nivelle} H. de Nivelle, M. de Rijke, 2003, Deciding the guarded fragments by resolution. Journal of Symbolic Computation, 35(1), 21-58, \url{https://doi.org/10.1016/S0747-7171(02)00092-5}
 \bibitem{leitsch} A. Leitsch, 1997, The resolution calculus. Texts in Theoretical Computer Science, Springer, \url{https://doi.org/10.1007/978-3-642-60605-2}
-\bibitem{github} FGF Solver , \url{TODO}
+\bibitem{github} FGF Solver, \url{https://github.com/zmrocze/resolution-fgf.git}
 \end{thebibliography}
 
 % \begin{thebibliography}{1}
